@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "789865599188",
+    "project_id": "quick-grocery-delivery",
+    "storage_bucket": "quick-grocery-delivery.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789865599188:android:1a3c1e140b38273594eb41",
+        "android_client_info": {
+          "package_name": "com.example.quickgrocerydelivery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "789865599188-257secjbrh5g34ju1fm5n7g1d2h9clsq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.quickgrocerydelivery",
+            "certificate_hash": "b3b3a7e4d4967a55395d2260576bce8fc4c67cc8"
+          }
+        },
+        {
+          "client_id": "789865599188-o51fdvj17pu246rttnikoljrha8ocegl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAx0uLWNi3thoUEA4lLvUOeVjB9arCFvvg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "789865599188-o51fdvj17pu246rttnikoljrha8ocegl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
