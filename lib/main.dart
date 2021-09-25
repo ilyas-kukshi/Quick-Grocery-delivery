@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:quickgrocerydelivery/localization/languages.dart';
+import 'package:quickgrocerydelivery/screens/auth/create_account.dart';
 import 'package:quickgrocerydelivery/screens/auth/signin.dart';
 import 'package:quickgrocerydelivery/screens/onboarding/guidelines.dart';
 
@@ -10,8 +13,11 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      
       title: 'Flutter Demo',
+      translations: Languages(),
+      locale: Locale('en', 'US'),
       theme: ThemeData(
         backgroundColor: Colors.white,
         buttonColor: Color(0xff33D1DB),
@@ -28,6 +34,7 @@ class MyApp extends StatelessWidget {
       ),
       onGenerateRoute: routing,
       home: Guidelines(),
+      
     );
   }
 
@@ -36,6 +43,10 @@ class MyApp extends StatelessWidget {
       case '/signIn':
         return PageTransition(
             child: SignIn(), type: PageTransitionType.leftToRight);
+      case '/createAccount':
+        return PageTransition(
+            child: CreateAccount(), type: PageTransitionType.leftToRight);
+
       default:
         return PageTransition(
             child: SignIn(), type: PageTransitionType.leftToRight);
