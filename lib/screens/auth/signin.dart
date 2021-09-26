@@ -18,7 +18,12 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  Future<FirebaseApp> firebaseApp = Firebase.initializeApp();
+  @override
+  void initState() {
+    super.initState();
+    Firebase.initializeApp();
+  }
+
   String verificationIdLocal = '';
 
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
@@ -60,6 +65,7 @@ class _SignInState extends State<SignIn> {
                       hintText: '9987655052',
                       controller: phoneNumberController,
                       validator: Utility.phoneNumberValidator,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       keyboardType: TextInputType.number,
                       textInputAction: TextInputAction.next,
                       inputFormatters: [LengthLimitingTextInputFormatter(10)]),
@@ -72,7 +78,7 @@ class _SignInState extends State<SignIn> {
                       height: 50,
                       borderRadius: 12,
                       width: MediaQuery.of(context).size.width * 0.85,
-                      color: Theme.of(context).buttonColor,
+                      color: AppThemeShared.buttonColor,
                       buttonText: "Get OTP",
                       onTap: (startLoading, stopLoading, btnState) {
                         sendOtp(startLoading, stopLoading, btnState);
@@ -94,7 +100,7 @@ class _SignInState extends State<SignIn> {
                                   decoration: TextDecoration.underline),
                         ),
                         onPressed: () {
-                          Get.toNamed('/createAccount');
+                      Navigator.pushNamed(context, '/createAccount');
                         },
                       ),
                       TextButton(
@@ -127,16 +133,17 @@ class _SignInState extends State<SignIn> {
       if (validate) {
         DialogShared.loadingDialog(context, "Loading...");
 
-        // await FirebaseAuth.instance
-        //     .verifyPhoneNumber(
-        //         phoneNumber: "+91" + phoneNumberController.text,
-        //         verificationCompleted: verificationCompleted,
-        //         verificationFailed: verificationFailed,
-        //         codeSent: codeSent,
-        //         codeAutoRetrievalTimeout: codeAutoRetrievalTimeout)
-        //     .onError((error, stackTrace) {
-        //   Fluttertoast.showToast(msg: error.toString());
-        // });
+        await FirebaseAuth.instance
+            .verifyPhoneNumber(
+                phoneNumber: "+91" + phoneNumberController.text,
+                verificationCompleted: verificationCompleted,
+                verificationFailed: verificationFailed,
+                codeSent: codeSent,
+                codeAutoRetrievalTimeout: codeAutoRetrievalTimeout)
+            .onError((error, stackTrace) {
+          Fluttertoast.showToast(msg: error.toString());
+          Get.back();
+        });
       }
     }
   }
@@ -145,12 +152,14 @@ class _SignInState extends State<SignIn> {
 
   void codeSent(String verificationId, [int? smsCode]) async {
     verificationIdLocal = verificationId;
-    Get.toNamed("/otp", arguments: verificationId);
+    Navigator.pop(context);
+    Navigator.pushNamed("/otp", arguments: verificationIdLocal);
   }
 
   void verificationFailed(FirebaseAuthException exception) {
     print(exception.message);
     Fluttertoast.showToast(msg: exception.message.toString());
+    Get.back();
   }
 
   void verificationCompleted(PhoneAuthCredential credential) async {}

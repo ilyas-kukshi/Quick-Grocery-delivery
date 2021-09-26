@@ -63,7 +63,7 @@ class _CreateAccountOtpState extends State<CreateAccountOtp> {
                         borderRadius: BorderRadius.circular(12),
                         activeColor: Colors.black,
                         inactiveColor: Colors.black,
-                        selectedColor: Theme.of(context).buttonColor),
+                        selectedColor: AppThemeShared.buttonColor),
                   ),
                 ),
               ),
@@ -74,7 +74,7 @@ class _CreateAccountOtpState extends State<CreateAccountOtp> {
                       height: 50,
                       borderRadius: 12,
                       width: MediaQuery.of(context).size.width * 0.85,
-                      color: Theme.of(context).buttonColor,
+                      color: AppThemeShared.buttonColor,
                       buttonText: "Login",
                       onTap: (startLoading, stopLoading, btnState) {
                         startLoading();

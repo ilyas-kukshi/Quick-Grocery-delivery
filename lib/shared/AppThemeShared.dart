@@ -4,9 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class AppThemeShared {
+
+  static Color buttonColor = Color(0xff33D1DB);
+
   static appBar(
       {required String title,
       required BuildContext context,
+      bool automaticallyImplyLeading = false,
       bool? centerTitle = true,
       Widget? leading,
       List<Widget>? actions,

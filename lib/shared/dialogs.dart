@@ -19,7 +19,7 @@ class DialogShared {
                   height: 100,
                   width: 100,
                   child: CircularProgressIndicator(
-                    color: Theme.of(context).buttonColor,
+                    color: AppThemeShared.buttonColor,
                   ),
                 ),
                 SizedBox(height: 30),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
+import 'package:quickgrocerydelivery/screens/dashboard/setLocation.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
 
 class DashboardMain extends StatefulWidget {
@@ -46,10 +46,10 @@ class _DashboardMainState extends State<DashboardMain> {
                           color: Colors.white,
                         )),
                     GestureDetector(
-                      onTap: () {
-                        // Get.toNamed();
-                      },
-                      child: Icon(Icons.edit, color: Colors.white)),
+                        onTap: () {
+                          Navigator.pushNamed(context, '/setLocation');
+                        },
+                        child: Icon(Icons.edit, color: Colors.white)),
                   ],
                 ),
               )

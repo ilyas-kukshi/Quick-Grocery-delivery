@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:quickgrocerydelivery/screens/dashboard/dashboard_main.dart';
@@ -25,12 +26,14 @@ class _GuidelinesState extends State<Guidelines> {
   int currentPageNo = 0;
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
+    // WidgetsFlutterBinding.ensureInitialized();
+    // Firebase.initializeApp();
     if (FirebaseAuth.instance.currentUser != null) {
-      Get.off(() => DashboardMain());
+      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+        Navigator.popAndPushNamed(context, '/dashboardMain');
+      });
     }
   }
 

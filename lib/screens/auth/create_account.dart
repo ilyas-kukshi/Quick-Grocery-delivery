@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:quickgrocerydelivery/screens/auth/create_account_otp.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/utility.dart';
 
@@ -108,7 +107,7 @@ class _CreateAccountState extends State<CreateAccount> {
                     height: 50,
                     borderRadius: 12,
                     width: MediaQuery.of(context).size.width * 0.85,
-                    color: Theme.of(context).buttonColor,
+                    color: AppThemeShared.buttonColor,
                     buttonText: "Get Otp",
                     onTap: (startLoading, stopLoading, btnState) {
                       if (btnState == ButtonState.Idle) {

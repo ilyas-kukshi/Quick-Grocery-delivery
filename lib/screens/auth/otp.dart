@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:quickgrocerydelivery/screens/dashboard/dashboard_main.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
+import 'package:quickgrocerydelivery/shared/dialogs.dart';
 import 'package:quickgrocerydelivery/shared/utility.dart';
 
 class Otp extends StatefulWidget {
@@ -76,7 +77,7 @@ class _OtpState extends State<Otp> {
                             borderRadius: BorderRadius.circular(12),
                             activeColor: Colors.black,
                             inactiveColor: Colors.black,
-                            selectedColor: Theme.of(context).buttonColor),
+                            selectedColor: AppThemeShared.buttonColor),
                       ),
                     ],
                   ),
@@ -89,7 +90,7 @@ class _OtpState extends State<Otp> {
                       height: 50,
                       borderRadius: 12,
                       width: MediaQuery.of(context).size.width * 0.85,
-                      color: Theme.of(context).buttonColor,
+                      color: AppThemeShared.buttonColor,
                       buttonText: "Login",
                       onTap: (startLoading, stopLoading, btnState) {
                         verifyOtp(startLoading, stopLoading, btnState);
@@ -142,6 +143,7 @@ class _OtpState extends State<Otp> {
     if (btnState == ButtonState.Idle) {
       final valid = otpFormKey.currentState!.validate();
       if (valid) {
+        DialogShared.loadingDialog(context, "Loading...");
         final credential = PhoneAuthProvider.credential(
             verificationId: verificationIdLocal, smsCode: otpController.text);
 
@@ -151,7 +153,7 @@ class _OtpState extends State<Otp> {
           Fluttertoast.showToast(msg: e.toString());
           print(e);
         });
-
+        Get.back();
         Get.to(DashboardMain());
       }
     }
