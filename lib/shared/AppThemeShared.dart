@@ -24,7 +24,7 @@ class AppThemeShared {
     );
   }
 
-  static buttonShared({
+  static argonButtonShared({
     required BuildContext context,
     required double height,
     required double width,
@@ -63,6 +63,7 @@ class AppThemeShared {
       TextEditingController? controller,
       TextInputAction? textInputAction,
       TextInputType? keyboardType,
+      AutovalidateMode? autovalidateMode,
 
       //
       String? Function(String?)? validator,
@@ -96,6 +97,7 @@ class AppThemeShared {
           obscureText: obscureText,
           autofocus: autoFocus,
           readOnly: readonly,
+          autovalidateMode: autovalidateMode,
           onChanged: onChanged,
           onSaved: onSaved,
           onEditingComplete: onEditingComplete,
@@ -125,6 +127,28 @@ class AppThemeShared {
           ),
         )
       ],
+    );
+  }
+
+  static sharedRaisedButton({
+    required BuildContext context,
+    required double height,
+    required double width,
+    required Color color,
+    required String buttonText,
+    required void Function()? onPressed,
+    double borderRadius = 0.0,
+  }) {
+    return ConstrainedBox(
+      constraints: BoxConstraints.tightFor(height: height, width: width),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(
+          buttonText,
+          style: Theme.of(context).textTheme.headline3?.copyWith(fontSize: 16),
+        ),
+        style: ElevatedButton.styleFrom(primary: color),
+      ),
     );
   }
 }

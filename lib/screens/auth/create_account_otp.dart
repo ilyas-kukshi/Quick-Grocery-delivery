@@ -1,25 +1,21 @@
-import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:quickgrocerydelivery/screens/auth/otp.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
-import 'package:quickgrocerydelivery/shared/dialogs.dart';
-import 'package:quickgrocerydelivery/shared/utility.dart';
 
-class SignIn extends StatefulWidget {
-  const SignIn({Key? key}) : super(key: key);
+class CreateAccountOtp extends StatefulWidget {
+  const CreateAccountOtp({Key? key}) : super(key: key);
 
   @override
-  _SignInState createState() => _SignInState();
+  _CreateAccountOtpState createState() => _CreateAccountOtpState();
 }
 
-class _SignInState extends State<SignIn> {
+class _CreateAccountOtpState extends State<CreateAccountOtp> {
   Future<FirebaseApp> firebaseApp = Firebase.initializeApp();
-  String verificationIdLocal = '';
+  String verificationIdLocal = Get.arguments;
 
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
   TextEditingController phoneNumberController = TextEditingController();
@@ -54,15 +50,21 @@ class _SignInState extends State<SignIn> {
               Center(
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width * 0.85,
-                  child: AppThemeShared.textFormField(
-                      context: context,
-                      labelText: 'Enter phone number \*',
-                      hintText: '9987655052',
-                      controller: phoneNumberController,
-                      validator: Utility.phoneNumberValidator,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.next,
-                      inputFormatters: [LengthLimitingTextInputFormatter(10)]),
+                  child: PinCodeTextField(
+                    appContext: context,
+                    length: 6,
+                    controller: otpController,
+                    animationType: AnimationType.scale,
+                    keyboardType: TextInputType.number,
+                    onChanged: (otp) {
+                      // verifyOtp(otp);
+                    },
+                    pinTheme: PinTheme(
+                        borderRadius: BorderRadius.circular(12),
+                        activeColor: Colors.black,
+                        inactiveColor: Colors.black,
+                        selectedColor: Theme.of(context).buttonColor),
+                  ),
                 ),
               ),
               SizedBox(height: 30),
@@ -73,9 +75,12 @@ class _SignInState extends State<SignIn> {
                       borderRadius: 12,
                       width: MediaQuery.of(context).size.width * 0.85,
                       color: Theme.of(context).buttonColor,
-                      buttonText: "Get OTP",
+                      buttonText: "Login",
                       onTap: (startLoading, stopLoading, btnState) {
-                        sendOtp(startLoading, stopLoading, btnState);
+                        startLoading();
+                       
+                            verifyOtp();
+
                       })),
               Center(
                 child: Container(
@@ -120,38 +125,13 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  void sendOtp(Function startLoading, Function stopLoading,
-      ButtonState buttonState) async {
-    final validate = loginFormKey.currentState!.validate();
-    if (buttonState == ButtonState.Idle) {
-      if (validate) {
-        DialogShared.loadingDialog(context, "Loading...");
+  void verifyOtp() async {
+    final credential = PhoneAuthProvider.credential(
+        verificationId: verificationIdLocal, smsCode: otpController.text);
 
-        // await FirebaseAuth.instance
-        //     .verifyPhoneNumber(
-        //         phoneNumber: "+91" + phoneNumberController.text,
-        //         verificationCompleted: verificationCompleted,
-        //         verificationFailed: verificationFailed,
-        //         codeSent: codeSent,
-        //         codeAutoRetrievalTimeout: codeAutoRetrievalTimeout)
-        //     .onError((error, stackTrace) {
-        //   Fluttertoast.showToast(msg: error.toString());
-        // });
-      }
-    }
+    FirebaseAuth.instance.signInWithCredential(credential).catchError((e) {
+      Fluttertoast.showToast(msg: e.toString());
+      print(e);
+    });
   }
-
-  void codeAutoRetrievalTimeout(String verificationId) {}
-
-  void codeSent(String verificationId, [int? smsCode]) async {
-    verificationIdLocal = verificationId;
-    Get.toNamed("/otp", arguments: verificationId);
-  }
-
-  void verificationFailed(FirebaseAuthException exception) {
-    print(exception.message);
-    Fluttertoast.showToast(msg: exception.message.toString());
-  }
-
-  void verificationCompleted(PhoneAuthCredential credential) async {}
 }

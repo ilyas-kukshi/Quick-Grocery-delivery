@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:quickgrocerydelivery/localization/languages.dart';
 import 'package:quickgrocerydelivery/screens/auth/create_account.dart';
+import 'package:quickgrocerydelivery/screens/auth/create_account_otp.dart';
+import 'package:quickgrocerydelivery/screens/auth/otp.dart';
 import 'package:quickgrocerydelivery/screens/auth/signin.dart';
 import 'package:quickgrocerydelivery/screens/onboarding/guidelines.dart';
 
@@ -14,7 +16,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      
       title: 'Flutter Demo',
       translations: Languages(),
       locale: Locale('en', 'US'),
@@ -34,7 +35,6 @@ class MyApp extends StatelessWidget {
       ),
       onGenerateRoute: routing,
       home: Guidelines(),
-      
     );
   }
 
@@ -46,6 +46,17 @@ class MyApp extends StatelessWidget {
       case '/createAccount':
         return PageTransition(
             child: CreateAccount(), type: PageTransitionType.leftToRight);
+      case '/otp':
+        return PageTransition(
+            child: Otp(), type: PageTransitionType.leftToRight);
+
+      case '/createAccountOtp':
+        return PageTransition(
+            child: CreateAccountOtp(), type: PageTransitionType.leftToRight);
+
+      case '/createAccountOtp':
+        return PageTransition(
+            child: CreateAccountOtp(), type: PageTransitionType.leftToRight);
 
       default:
         return PageTransition(
