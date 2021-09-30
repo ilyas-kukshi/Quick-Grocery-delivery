@@ -1,10 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:quickgrocerydelivery/screens/dashboard/dashboard_main.dart';
 import 'package:quickgrocerydelivery/screens/onboarding/guideline_titles.dart';
 
 class Guidelines extends StatefulWidget {

@@ -1,12 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:quickgrocerydelivery/localization/languages.dart';
+import 'package:quickgrocerydelivery/models/usermodel.dart';
 import 'package:quickgrocerydelivery/screens/auth/create_account.dart';
 import 'package:quickgrocerydelivery/screens/auth/create_account_otp.dart';
 import 'package:quickgrocerydelivery/screens/auth/otp.dart';
 import 'package:quickgrocerydelivery/screens/auth/signin.dart';
+import 'package:quickgrocerydelivery/screens/dashboard/add_address.dart';
 import 'package:quickgrocerydelivery/screens/dashboard/dashboard_main.dart';
 import 'package:quickgrocerydelivery/screens/dashboard/setLocation.dart';
 import 'package:quickgrocerydelivery/screens/onboarding/guidelines.dart';
@@ -22,9 +23,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-     
       locale: Locale('en', 'US'),
-      debugShowCheckedModeBanner: false, 
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         backgroundColor: Colors.white,
         buttonTheme: ButtonThemeData(buttonColor: Color(0xff33D1DB)),
@@ -51,14 +51,24 @@ class MyApp extends StatelessWidget {
             child: SignIn(), type: PageTransitionType.leftToRight);
       case '/createAccount':
         return PageTransition(
-            child: CreateAccount(), type: PageTransitionType.leftToRight);
+            child: CreateAccount(
+              phoneNumber: settings.arguments as String,
+            ),
+            type: PageTransitionType.leftToRight);
       case '/otp':
         return PageTransition(
-            child: Otp(), type: PageTransitionType.leftToRight);
+          child: Otp(
+            data: settings.arguments as String,
+          ),
+          type: PageTransitionType.leftToRight,
+        );
 
       case '/createAccountOtp':
         return PageTransition(
-            child: CreateAccountOtp(), type: PageTransitionType.leftToRight);
+            child: CreateAccountOtp(
+              userModel: settings.arguments as UserModel,
+            ),
+            type: PageTransitionType.leftToRight);
 
       case '/createAccountOtp':
         return PageTransition(
@@ -69,7 +79,13 @@ class MyApp extends StatelessWidget {
 
       case '/setLocation':
         return PageTransition(
-            child: SetLocation(), type: PageTransitionType.leftToRight);
+            child: SetLocation(
+              initialPosition: settings.arguments as GeoPoint,
+            ),
+            type: PageTransitionType.leftToRight);
+      case '/addAddress':
+        return PageTransition(
+            child: AddAddress(), type: PageTransitionType.leftToRight);
 
       default:
         return PageTransition(

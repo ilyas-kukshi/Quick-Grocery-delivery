@@ -1,13 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:quickgrocerydelivery/models/usermodel.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
+import 'package:quickgrocerydelivery/shared/dialogs.dart';
+import 'package:quickgrocerydelivery/shared/utility.dart';
 
 class CreateAccountOtp extends StatefulWidget {
-  const CreateAccountOtp({Key? key}) : super(key: key);
+  final UserModel? userModel;
+  const CreateAccountOtp({Key? key, this.userModel}) : super(key: key);
 
   @override
   _CreateAccountOtpState createState() => _CreateAccountOtpState();
@@ -15,9 +19,8 @@ class CreateAccountOtp extends StatefulWidget {
 
 class _CreateAccountOtpState extends State<CreateAccountOtp> {
   Future<FirebaseApp> firebaseApp = Firebase.initializeApp();
-  String verificationIdLocal = Get.arguments;
 
-  GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
+  GlobalKey<FormState> createAccountOtpFormKey = GlobalKey<FormState>();
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController otpController = TextEditingController();
 
@@ -31,7 +34,7 @@ class _CreateAccountOtpState extends State<CreateAccountOtp> {
           centerTitle: true),
       body: SingleChildScrollView(
         child: Form(
-          key: loginFormKey,
+          key: createAccountOtpFormKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -55,6 +58,7 @@ class _CreateAccountOtpState extends State<CreateAccountOtp> {
                     length: 6,
                     controller: otpController,
                     animationType: AnimationType.scale,
+                    validator: Utility.otpValidator,
                     keyboardType: TextInputType.number,
                     onChanged: (otp) {
                       // verifyOtp(otp);
@@ -77,47 +81,12 @@ class _CreateAccountOtpState extends State<CreateAccountOtp> {
                       color: AppThemeShared.buttonColor,
                       buttonText: "Login",
                       onTap: (startLoading, stopLoading, btnState) {
-                        startLoading();
-                       
-                            verifyOtp();
-
+                        if (otpController.text.length == 6) {
+                          verifyOtp();
+                        } else {
+                          Fluttertoast.showToast(msg: "Please enter valid OTP");
+                        }
                       })),
-              Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextButton(
-                        child: Text(
-                          'Create account',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline3
-                              ?.copyWith(
-                                  fontSize: 18,
-                                  decoration: TextDecoration.underline),
-                        ),
-                        onPressed: () {
-                          Get.toNamed('/createAccount');
-                        },
-                      ),
-                      TextButton(
-                        child: Text(
-                          'Forgot password',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline3
-                              ?.copyWith(
-                                  fontSize: 18,
-                                  decoration: TextDecoration.underline),
-                        ),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                ),
-              )
             ],
           ),
         ),
@@ -126,12 +95,34 @@ class _CreateAccountOtpState extends State<CreateAccountOtp> {
   }
 
   void verifyOtp() async {
-    final credential = PhoneAuthProvider.credential(
-        verificationId: verificationIdLocal, smsCode: otpController.text);
+    final valid = createAccountOtpFormKey.currentState!.validate();
+    if (valid) {
+      DialogShared.loadingDialog(context, "Loading...");
 
-    FirebaseAuth.instance.signInWithCredential(credential).catchError((e) {
-      Fluttertoast.showToast(msg: e.toString());
-      print(e);
-    });
+      final credential = PhoneAuthProvider.credential(
+          verificationId: widget.userModel!.verificationId,
+          smsCode: otpController.text);
+
+      await FirebaseAuth.instance
+          .signInWithCredential(credential)
+          .catchError((e) {
+        Navigator.pop(context);
+        Fluttertoast.showToast(msg: e.toString());
+        print(e);
+      });
+      if (FirebaseAuth.instance.currentUser != null) {
+        FirebaseFirestore.instance
+            .collection("Users")
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .set({
+          'name': widget.userModel!.name,
+          'phoneNumber': widget.userModel!.phoneNumber,
+          'type': "Customer"
+        }).whenComplete(() {
+          Navigator.pop(context);
+          Navigator.pushNamed(context, "/dashboardMain");
+        });
+      }
+    }
   }
 }

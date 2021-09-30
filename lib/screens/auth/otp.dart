@@ -1,17 +1,18 @@
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:quickgrocerydelivery/screens/dashboard/dashboard_main.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
 import 'package:quickgrocerydelivery/shared/utility.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Otp extends StatefulWidget {
-  const Otp({Key? key}) : super(key: key);
+  final String data;
+  const Otp({Key? key, required this.data}) : super(key: key);
 
   @override
   _OtpState createState() => _OtpState();
@@ -19,7 +20,6 @@ class Otp extends StatefulWidget {
 
 class _OtpState extends State<Otp> {
   Future<FirebaseApp> firebaseApp = Firebase.initializeApp();
-  String verificationIdLocal = Get.arguments;
 
   GlobalKey<FormState> otpFormKey = GlobalKey<FormState>();
   TextEditingController phoneNumberController = TextEditingController();
@@ -95,42 +95,6 @@ class _OtpState extends State<Otp> {
                       onTap: (startLoading, stopLoading, btnState) {
                         verifyOtp(startLoading, stopLoading, btnState);
                       })),
-              Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextButton(
-                        child: Text(
-                          'Create account',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline3
-                              ?.copyWith(
-                                  fontSize: 18,
-                                  decoration: TextDecoration.underline),
-                        ),
-                        onPressed: () {
-                          Get.toNamed('/createAccount');
-                        },
-                      ),
-                      TextButton(
-                        child: Text(
-                          'Forgot password',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline3
-                              ?.copyWith(
-                                  fontSize: 18,
-                                  decoration: TextDecoration.underline),
-                        ),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ),
-                ),
-              )
             ],
           ),
         ),
@@ -145,7 +109,7 @@ class _OtpState extends State<Otp> {
       if (valid) {
         DialogShared.loadingDialog(context, "Loading...");
         final credential = PhoneAuthProvider.credential(
-            verificationId: verificationIdLocal, smsCode: otpController.text);
+            verificationId: widget.data, smsCode: otpController.text);
 
         await FirebaseAuth.instance
             .signInWithCredential(credential)
@@ -153,9 +117,26 @@ class _OtpState extends State<Otp> {
           Fluttertoast.showToast(msg: e.toString());
           print(e);
         });
-        Get.back();
-        Get.to(DashboardMain());
+        setUserData();
+        Navigator.pop(context);
+        Navigator.pushNamed(context, '/dashboardMain');
       }
     }
+  }
+
+  void setUserData() async {
+    SharedPreferences userData = await SharedPreferences.getInstance();
+
+    FirebaseFirestore.instance
+        .collection("Users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((DocumentSnapshot value) {
+      userData.clear();
+      userData.setString("userId", value.id);
+      userData.setString("name", value.get("name"));
+      userData.setString("phoneNumber", value.get("phoneNumber"));
+      userData.setString("type", value.get("type"));
+    });
   }
 }

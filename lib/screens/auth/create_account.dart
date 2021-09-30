@@ -1,16 +1,17 @@
 import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
+import 'package:quickgrocerydelivery/models/usermodel.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
+import 'package:quickgrocerydelivery/shared/dialogs.dart';
 import 'package:quickgrocerydelivery/shared/utility.dart';
 
 class CreateAccount extends StatefulWidget {
-  const CreateAccount({Key? key}) : super(key: key);
+  final String? phoneNumber;
+  const CreateAccount({Key? key, this.phoneNumber}) : super(key: key);
 
   @override
   _CreateAccountState createState() => _CreateAccountState();
@@ -25,8 +26,11 @@ class _CreateAccountState extends State<CreateAccount> {
 
   GlobalKey<FormState> createAccountForm = GlobalKey<FormState>();
 
-  Future<FirebaseApp> firebaseApp = Firebase.initializeApp();
-  bool otpSent = false;
+  @override
+  void initState() {
+    super.initState();
+    phoneNumberController.text = widget.phoneNumber!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,17 +118,22 @@ class _CreateAccountState extends State<CreateAccount> {
                         final valid =
                             createAccountForm.currentState!.validate();
                         if (valid) {
-                          startLoading();
                           FirebaseFirestore.instance
                               .collection('Users')
-                              .doc(phoneNumberController.text)
+                              .where("phoneNumber",
+                                  isEqualTo: phoneNumberController.text)
                               .get()
-                              .then((DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists) {
-                              Fluttertoast.showToast(
-                                  msg: "Phone number already exists");
-                              stopLoading();
+                              .then((QuerySnapshot documentSnapshot) {
+                            if (documentSnapshot.docs.length != 0) {
+                              DialogShared.singleButtonDialog(
+                                  context,
+                                  "Phone number is already registered. Please Log in.",
+                                  "Okay", () {
+                                Navigator.pop(context);
+                                Navigator.pushNamed(context, "/singIn");
+                              });
                             } else {
+                              DialogShared.loadingDialog(context, "Loading...");
                               sendOtp();
                             }
                           });
@@ -148,35 +157,18 @@ class _CreateAccountState extends State<CreateAccount> {
 
   void codeAutoRetrievalTimeout(String verificationId) {}
   void codeSent(String verificationId, [int? smsCode]) async {
-    setState(() {
-      otpSent = true;
-    });
     verificationIdLocal = verificationId;
-    Get.toNamed("/createAccountOtp", arguments: verificationIdLocal);
+    Navigator.pop(context);
+    Navigator.pushNamed(context, "/createAccountOtp",
+        arguments: UserModel(
+            nameController.text, phoneNumberController.text, verificationId));
   }
 
   void verificationFailed(FirebaseAuthException exception) {
     print(exception.message);
+    Navigator.pop(context);
     Fluttertoast.showToast(msg: exception.message.toString());
   }
 
-  void verificationCompleted(PhoneAuthCredential credential) async {
-    // await FirebaseAuth.instance.signInWithCredential(credential);
-    // if (FirebaseAuth.instance.currentUser != null) {
-    //   setState(() {});
-    // } else {
-    //   Fluttertoast.showToast(msg: 'Failed');
-    // }
-  }
-
-  // void verifyOtp() async {
-  //   final credential = PhoneAuthProvider.credential(
-  //       verificationId: verificationIdLocal, smsCode: otpController.text);
-  //   await FirebaseAuth.instance
-  //       .signInWithCredential(credential)
-  //       .catchError((e) {
-  //     Fluttertoast.showToast(msg: e.toString());
-  //     print(e);
-  //   });
-  // }
+  void verificationCompleted(PhoneAuthCredential credential) async {}
 }
