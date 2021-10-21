@@ -157,7 +157,7 @@ class _SignInState extends State<SignIn> {
                       color: AppThemeShared.buttonColor,
                       buttonText: "Create account",
                       onTap: (startLoading, stopLoading, btnState) {
-                        String phoneNumber;
+                        // String phoneNumber;
                         // if (phoneNumberController.text.length == 0) {
                         //   phoneNumber = "";
                         // } else {

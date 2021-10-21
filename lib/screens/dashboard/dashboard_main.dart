@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +7,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:quickgrocerydelivery/screens/dashboard/dashboard_dawer.dart';
-import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
+import 'package:quickgrocerydelivery/models/categoryModel.dart';
+import 'package:quickgrocerydelivery/screens/dashboard/dashboard_drawer.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
 
 class DashboardMain extends StatefulWidget {
@@ -22,11 +23,14 @@ class _DashboardMainState extends State<DashboardMain> {
   GeoPoint? savedLocation;
   bool askCurrentLocation = true;
   String userLocation = "Your Location";
+  List<DocumentSnapshot> shops = [];
+  List<DocumentSnapshot> categories = [];
   GlobalKey<ScaffoldState> scaffolKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     super.initState();
     getSelectedLocation();
+    allCategories();
   }
 
   @override
@@ -53,6 +57,7 @@ class _DashboardMainState extends State<DashboardMain> {
               child: Icon(Icons.menu_outlined, color: Colors.white)),
           centerTitle: true,
           title: Column(
+            // crossAxisAlignment: CrossAxisAlignment.start
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
@@ -86,10 +91,199 @@ class _DashboardMainState extends State<DashboardMain> {
           ),
         ),
         body: Column(
-          children: [],
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(horizontal: 12),
+            //   child: Text(
+            //     "Nearby Shops",
+            //     style: Theme.of(context)
+            //         .textTheme
+            //         .headline1!
+            //         .copyWith(fontSize: 24),
+            //   ),
+            // ),
+            Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Text(
+                "Nearby Shops",
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1!
+                    .copyWith(fontSize: 24),
+              ),
+            ),
+            // SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: SizedBox(
+                height: 200,
+                child: ListView.builder(
+                  itemCount: shops.length,
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return shopsWidget(index);
+                  },
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Text(
+                "Categories",
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1!
+                    .copyWith(fontSize: 24),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: SizedBox(
+                height: 200,
+                child: ListView.builder(
+                  itemCount: categories.length,
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return categoryWidget(index);
+                  },
+                ),
+              ),
+            ),
+
+            // Expanded(child: GridView.builder(
+            // //  itemCount: allProducts.length,
+            //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            //             crossAxisCount: 2,
+            //             mainAxisExtent: 300,
+            //             mainAxisSpacing: 12),
+            //   itemBuilder: (context, index) {
+            //     return Container();
+            //   },))
+          ],
         ),
       ),
     );
+  }
+
+  Widget shopsWidget(int index) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, "/shopDetailed", arguments: shops[index]);
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Stack(children: [
+          Column(children: [
+            SizedBox(
+                height: 150,
+                width: 250,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(12),
+                      topRight: Radius.circular(12)),
+                  child: Image.asset(
+                    "assets/images/shopBg.jpg",
+                    fit: BoxFit.fill,
+                  ),
+                )),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Text(
+                shops[index]["name"],
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline3!
+                    .copyWith(fontSize: 20),
+              ),
+            )
+          ])
+        ]),
+      ),
+    );
+  }
+
+  Widget categoryWidget(int index) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, "/productByCategory",
+            arguments: CategoryModel(categories[index].id,
+                categories[index]["name"], categories[index]["imageUrl"]));
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Stack(children: [
+            Column(children: [
+              SizedBox(
+                  height: 150,
+                  width: 150,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12)),
+                    child: CachedNetworkImage(
+                      width: 100,
+                      height: 100,
+                      progressIndicatorBuilder:
+                          (context, url, downloadProgress) =>
+                              CircularProgressIndicator(
+                                  value: downloadProgress.progress),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
+                      imageUrl: categories[index].get("imageUrl"),
+                      fit: BoxFit.fill,
+                    ),
+                  )),
+              SizedBox(height: 8),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Text(
+                  categories[index]["name"],
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline3!
+                      .copyWith(fontSize: 20),
+                ),
+              )
+            ])
+          ]),
+        ),
+      ),
+    );
+  }
+
+  allCategories() async {
+    FirebaseFirestore.instance.collection("Categories").get().then((value) {
+      value.docs.forEach((element) {
+        categories.add(element);
+      });
+      setState(() {});
+    });
+  }
+
+  loadData(double latitude, double longitude) {
+    // Create a geoFirePoint
+    GeoFirePoint center =
+        Geoflutterfire().point(latitude: latitude, longitude: longitude);
+    Stream<List<DocumentSnapshot>> stream = Geoflutterfire()
+        .collection(
+            collectionRef: FirebaseFirestore.instance.collection("Shops"))
+        .within(center: center, radius: 10, field: "location");
+    stream.listen((List<DocumentSnapshot> documentList) {
+      shops.clear();
+      shops = documentList;
+      setState(() {});
+    });
   }
 
   void getSelectedLocation() async {
@@ -102,6 +296,7 @@ class _DashboardMainState extends State<DashboardMain> {
         savedLocation = doc.data()?["location"]["geopoint"];
         getAddressFromLatLong(
             savedLocation!.latitude, savedLocation!.longitude);
+        loadData(savedLocation!.latitude, savedLocation!.longitude);
       }
     });
   }
@@ -136,7 +331,7 @@ class _DashboardMainState extends State<DashboardMain> {
   Future<void> getAddressFromLatLong(double latitude, double longitude) async {
     List<Placemark> placemarks =
         await placemarkFromCoordinates(latitude, longitude);
-    print(placemarks);
+
     Placemark place = placemarks[0];
     setState(() {
       userLocation = '${place.subLocality}, ${place.locality}';

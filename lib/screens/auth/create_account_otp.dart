@@ -117,7 +117,8 @@ class _CreateAccountOtpState extends State<CreateAccountOtp> {
             .set({
           'name': widget.userModel!.name,
           'phoneNumber': widget.userModel!.phoneNumber,
-          'type': "Customer"
+          'type': "Customer",
+          'enabled': true
         }).whenComplete(() {
           Navigator.pop(context);
           Navigator.pushNamed(context, "/dashboardMain");

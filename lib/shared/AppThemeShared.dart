@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class AppThemeShared {
-
   static Color buttonColor = Color(0xff33D1DB);
 
   static appBar(
@@ -64,6 +63,7 @@ class AppThemeShared {
       {required BuildContext context,
       String labelText = '',
       String hintText = '',
+      String? initialValue,
       TextEditingController? controller,
       TextInputAction? textInputAction,
       TextInputType? keyboardType,
@@ -82,6 +82,11 @@ class AppThemeShared {
       bool obscureText = false,
       bool autoFocus = false,
       bool readonly = false,
+      bool expands = false,
+
+      //
+      int? maxLines,
+      int? minLines,
 
       //
       Widget? suffixIcon}) {
@@ -98,9 +103,13 @@ class AppThemeShared {
           validator: validator,
           textInputAction: textInputAction,
           keyboardType: keyboardType,
+          initialValue: initialValue,
           obscureText: obscureText,
           autofocus: autoFocus,
           readOnly: readonly,
+          expands: expands,
+          maxLines: maxLines,
+          minLines: minLines,
           autovalidateMode: autovalidateMode,
           onChanged: onChanged,
           onSaved: onSaved,

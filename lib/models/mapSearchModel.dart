@@ -1,17 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class MapSearchModel {
-  final String placeId;
+  var position;
   // final GeoPoint geopoint;
 
-  MapSearchModel({
-    required this.placeId,
+  MapSearchModel(
+    this.position,
     // required this.geopoint,
-  });
+  );
 
   factory MapSearchModel.fromJson(Map<String, dynamic> json) {
-    return MapSearchModel(placeId: json['place_id'],
-    //  geopoint: json['geopoint']
-     );
+    return MapSearchModel(
+      json['segments'],
+      //  geopoint: json['geopoint']
+    );
   }
 }

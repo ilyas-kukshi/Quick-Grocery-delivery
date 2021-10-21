@@ -1,6 +1,6 @@
 class Utility {
   static String? nameValidator(String? name) {
-    if (name?.length == 0) {
+    if (name!.isEmpty) {
       return " Please enter your name";
     }
     return null;
@@ -33,6 +33,27 @@ class Utility {
   static String? otpValidator(String? otp) {
     if (otp!.length != 6) {
       return 'Pleas enter a valid otp';
+    }
+    return null;
+  }
+
+  static String? shopNameValidator(String? name) {
+    if (name!.isEmpty) {
+      return " Please enter your shop name";
+    }
+    return null;
+  }
+
+  static String? shopLocationValidator(String? name) {
+    if (name!.isEmpty) {
+      return " Please set your shop location";
+    }
+    return null;
+  }
+
+  static String? shopAddressValidator(String? name) {
+    if (name!.isEmpty) {
+      return " Please enter your shop address";
     }
     return null;
   }

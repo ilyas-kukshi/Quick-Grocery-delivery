@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:quickgrocerydelivery/models/mapSearchModel.dart';
-import 'package:quickgrocerydelivery/service/mapSearchService.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 
 class SetLocation extends StatefulWidget {
@@ -89,6 +88,14 @@ class _SetLocationState extends State<SetLocation> {
               child: SizedBox(
                 height: MediaQuery.of(context).size.height * 0.8,
                 child: GoogleMap(
+                  circles: {
+                    Circle(
+                        circleId: CircleId("10km area"),
+                        center: LatLng(latitude, longitude),
+                        radius: 10000,
+                        fillColor: Colors.blue.withOpacity(0.2),
+                        strokeColor: Colors.blue.withOpacity(0.2))
+                  },
                   initialCameraPosition: CameraPosition(
                       target: LatLng(latitude, longitude), zoom: 15),
                   onMapCreated: (controller) =>
@@ -125,7 +132,7 @@ class _SetLocationState extends State<SetLocation> {
 
   // void getResult(String searched) async {
   //   searchResults = await MapSearchService().getPredictions(searched);
-  //   print(searchResults);
+  //   print(searchResults?[0].position);
   // }
 
   @override

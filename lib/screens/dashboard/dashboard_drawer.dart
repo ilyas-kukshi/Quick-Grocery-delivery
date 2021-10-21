@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,13 +12,13 @@ class DashboardDrawer extends StatefulWidget {
 class _DashboardDrawerState extends State<DashboardDrawer> {
   String? phoneNumber;
   String? name;
+  String? userType;
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   void initState() {
     super.initState();
-    getPhoneNumber();
-    getName();
+    getUserInfo();
   }
 
   @override
@@ -64,27 +63,54 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                 SizedBox(height: 20),
                 Divider(color: Colors.grey),
                 SizedBox(height: 10),
-                GestureDetector(
-                  child: Row(
-                    children: [
-                      SizedBox(width: 10),
-                      Icon(
-                        Icons.home_outlined,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "Home",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline1
-                            ?.copyWith(fontSize: 18),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10),
-                Divider(color: Colors.grey),
-                SizedBox(height: 10),
+                // GestureDetector(
+                //   child: Row(
+                //     children: [
+                //       SizedBox(width: 10),
+                //       Icon(
+                //         Icons.home_outlined,
+                //       ),
+                //       SizedBox(width: 10),
+                //       Text(
+                //         "Home",
+                //         style: Theme.of(context)
+                //             .textTheme
+                //             .headline1
+                //             ?.copyWith(fontSize: 18),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // SizedBox(height: 10),
+                // Divider(color: Colors.grey),
+                // SizedBox(height: 10),
+                userType == "Shop"
+                    ? Column(
+                        children: [
+                          GestureDetector(
+                            child: Row(
+                              children: [
+                                SizedBox(width: 10),
+                                Icon(
+                                  Icons.home_outlined,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  "My Shop",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline1
+                                      ?.copyWith(fontSize: 18),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Divider(color: Colors.grey),
+                          SizedBox(height: 10),
+                        ],
+                      )
+                    : Offstage(),
                 GestureDetector(
                   child: Row(
                     children: [
@@ -103,21 +129,21 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                     ],
                   ),
                 ),
-
                 SizedBox(height: 10),
                 Divider(color: Colors.grey),
                 SizedBox(height: 10),
+
                 GestureDetector(
-                  onTap: () => Navigator.pushNamed(context, "/addAddress"),
+                  onTap: () => Navigator.pushNamed(context, "/myCart"),
                   child: Row(
                     children: [
                       SizedBox(width: 10),
                       Icon(
-                        Icons.map_outlined,
+                        Icons.shopping_cart_outlined,
                       ),
                       SizedBox(width: 10),
                       Text(
-                        "My Addresses",
+                        "My Cart",
                         style: Theme.of(context)
                             .textTheme
                             .headline1
@@ -126,9 +152,32 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                     ],
                   ),
                 ),
+
                 SizedBox(height: 10),
                 Divider(color: Colors.grey),
                 SizedBox(height: 10),
+                // GestureDetector(
+                //   onTap: () => Navigator.pushNamed(context, "/myAddresses"),
+                //   child: Row(
+                //     children: [
+                //       SizedBox(width: 10),
+                //       Icon(
+                //         Icons.map_outlined,
+                //       ),
+                //       SizedBox(width: 10),
+                //       Text(
+                //         "My Addresses",
+                //         style: Theme.of(context)
+                //             .textTheme
+                //             .headline1
+                //             ?.copyWith(fontSize: 18),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+                // SizedBox(height: 10),
+                // Divider(color: Colors.grey),
+                // SizedBox(height: 10),
                 GestureDetector(
                   child: Row(
                     children: [
@@ -150,6 +199,37 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                 SizedBox(height: 10),
                 Divider(color: Colors.grey),
                 SizedBox(height: 10),
+                // userType == "Customer"
+                //     ?
+                Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, "/becomeShopOwner");
+                      },
+                      child: Row(
+                        children: [
+                          SizedBox(width: 10),
+                          Icon(
+                            Icons.storefront_outlined,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            "Become a shop owner",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline1
+                                ?.copyWith(fontSize: 18),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Divider(color: Colors.grey),
+                    SizedBox(height: 10),
+                  ],
+                ),
+                // : Offstage(),
                 GestureDetector(
                   onTap: () {
                     DialogShared.doubleButtonDialog(
@@ -177,6 +257,7 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                   ),
                 ),
                 SizedBox(height: 10),
+
                 //
               ],
             ),
@@ -186,22 +267,22 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
     );
   }
 
-  Future<void> getPhoneNumber() async {
+  Future<void> getUserInfo() async {
     final SharedPreferences prefs = await _prefs;
 
     setState(() {
-      phoneNumber = prefs.getString('phoneNumber');
-    });
-  }
-
-  Future<void> getName() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    //Return String
-
-    setState(() {
       name = prefs.getString('name');
+      phoneNumber = prefs.getString("phoneNumber");
+      userType = prefs.getString("type");
     });
   }
+
+  // Future<void> getName() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   //Return String
+
+  //   setState(() {});
+  // }
 
   clearSharedPreference() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();

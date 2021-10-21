@@ -2,15 +2,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:quickgrocerydelivery/models/categoryModel.dart';
 import 'package:quickgrocerydelivery/models/usermodel.dart';
 import 'package:quickgrocerydelivery/screens/auth/create_account.dart';
 import 'package:quickgrocerydelivery/screens/auth/create_account_otp.dart';
 import 'package:quickgrocerydelivery/screens/auth/otp.dart';
 import 'package:quickgrocerydelivery/screens/auth/signin.dart';
-import 'package:quickgrocerydelivery/screens/dashboard/add_address.dart';
 import 'package:quickgrocerydelivery/screens/dashboard/dashboard_main.dart';
-import 'package:quickgrocerydelivery/screens/dashboard/setLocation.dart';
+import 'package:quickgrocerydelivery/screens/dashboard/shopDetail/product_by_categories.dart';
+import 'package:quickgrocerydelivery/screens/dashboard/shopDetail/shopDetailed.dart';
 import 'package:quickgrocerydelivery/screens/onboarding/guidelines.dart';
+import 'package:quickgrocerydelivery/screens/shops/become_shop_owner.dart';
+import 'package:quickgrocerydelivery/screens/shops/selectproducts/categories.dart';
+import 'package:quickgrocerydelivery/screens/shops/selectproducts/products.dart';
+import 'package:quickgrocerydelivery/screens/user/myCart.dart';
+import 'package:quickgrocerydelivery/screens/user/setLocation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,9 +89,36 @@ class MyApp extends StatelessWidget {
               initialPosition: settings.arguments as GeoPoint,
             ),
             type: PageTransitionType.leftToRight);
-      case '/addAddress':
+      // case '/myAddresses':
+      //   return PageTransition(
+      //       child: MyAdresses(), type: PageTransitionType.leftToRight);
+      case '/becomeShopOwner':
         return PageTransition(
-            child: AddAddress(), type: PageTransitionType.leftToRight);
+            child: BecomeShopOwner(), type: PageTransitionType.leftToRight);
+      //folder name with file name
+      case '/selectProductsCategories':
+        return PageTransition(
+            child: Categories(), type: PageTransitionType.leftToRight);
+      case '/selectProductsProducts':
+        return PageTransition(
+            child: Products(category: settings.arguments as CategoryModel),
+            type: PageTransitionType.leftToRight);
+      case '/shopDetailed':
+        return PageTransition(
+            child: ShopDetailed(
+              shopDoc: settings.arguments as DocumentSnapshot,
+            ),
+            type: PageTransitionType.leftToRight);
+
+      case '/productByCategory':
+        return PageTransition(
+            child: ProductByCategory(
+              categoryModel: settings.arguments as CategoryModel,
+            ),
+            type: PageTransitionType.leftToRight);
+      case '/myCart':
+        return PageTransition(
+            child: MyCart(), type: PageTransitionType.leftToRight);
 
       default:
         return PageTransition(

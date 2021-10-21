@@ -41,39 +41,39 @@ class _CreateAccountState extends State<CreateAccount> {
         key: createAccountForm,
         child: Column(
           children: [
-            SizedBox(height: 30),
-            Center(
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                width: MediaQuery.of(context).size.width * 0.85,
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black),
-                    borderRadius: BorderRadius.circular(12)),
-                child: DropdownButton<String>(
-                  value: accountType,
-                  isExpanded: true,
-                  iconSize: 24,
-                  elevation: 16,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline3
-                      ?.copyWith(fontSize: 16),
-                  underline: Offstage(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      accountType = newValue!;
-                    });
-                  },
-                  items: <String>['Customer', 'Shop Owner']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
+            // SizedBox(height: 30),
+            // Center(
+            //   child: Container(
+            //     padding: EdgeInsets.symmetric(horizontal: 8),
+            //     width: MediaQuery.of(context).size.width * 0.85,
+            //     decoration: BoxDecoration(
+            //         border: Border.all(color: Colors.black),
+            //         borderRadius: BorderRadius.circular(12)),
+            //     child: DropdownButton<String>(
+            //       value: accountType,
+            //       isExpanded: true,
+            //       iconSize: 24,
+            //       elevation: 16,
+            //       style: Theme.of(context)
+            //           .textTheme
+            //           .headline3
+            //           ?.copyWith(fontSize: 16),
+            //       underline: Offstage(),
+            //       onChanged: (String? newValue) {
+            //         setState(() {
+            //           accountType = newValue!;
+            //         });
+            //       },
+            //       items: <String>['Customer', 'Shop Owner']
+            //           .map<DropdownMenuItem<String>>((String value) {
+            //         return DropdownMenuItem<String>(
+            //           value: value,
+            //           child: Text(value),
+            //         );
+            //       }).toList(),
+            //     ),
+            //   ),
+            // ),
             SizedBox(height: 30),
             Center(
               child: SizedBox(
