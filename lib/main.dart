@@ -17,6 +17,7 @@ import 'package:quickgrocerydelivery/screens/shops/selectproducts/categories.dar
 import 'package:quickgrocerydelivery/screens/shops/selectproducts/products.dart';
 import 'package:quickgrocerydelivery/screens/user/myCart.dart';
 import 'package:quickgrocerydelivery/screens/user/setLocation.dart';
+import 'package:quickgrocerydelivery/screens/user/shops_near_me.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -119,6 +120,9 @@ class MyApp extends StatelessWidget {
       case '/myCart':
         return PageTransition(
             child: MyCart(), type: PageTransitionType.leftToRight);
+      case '/shopsNearMe':
+        return PageTransition(
+            child: ShopsNearMe(), type: PageTransitionType.leftToRight);
 
       default:
         return PageTransition(

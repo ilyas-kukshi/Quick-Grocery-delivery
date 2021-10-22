@@ -112,6 +112,9 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                       )
                     : Offstage(),
                 GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, "/shopsNearMe");
+                  },
                   child: Row(
                     children: [
                       SizedBox(width: 10),
@@ -199,37 +202,36 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                 SizedBox(height: 10),
                 Divider(color: Colors.grey),
                 SizedBox(height: 10),
-                // userType == "Customer"
-                //     ?
-                Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, "/becomeShopOwner");
-                      },
-                      child: Row(
+                userType == "Customer"
+                    ? Column(
                         children: [
-                          SizedBox(width: 10),
-                          Icon(
-                            Icons.storefront_outlined,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, "/becomeShopOwner");
+                            },
+                            child: Row(
+                              children: [
+                                SizedBox(width: 10),
+                                Icon(
+                                  Icons.storefront_outlined,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  "Become a shop owner",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline1
+                                      ?.copyWith(fontSize: 18),
+                                ),
+                              ],
+                            ),
                           ),
-                          SizedBox(width: 10),
-                          Text(
-                            "Become a shop owner",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline1
-                                ?.copyWith(fontSize: 18),
-                          ),
+                          SizedBox(height: 10),
+                          Divider(color: Colors.grey),
+                          SizedBox(height: 10),
                         ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Divider(color: Colors.grey),
-                    SizedBox(height: 10),
-                  ],
-                ),
-                // : Offstage(),
+                      )
+                    : Offstage(),
                 GestureDetector(
                   onTap: () {
                     DialogShared.doubleButtonDialog(

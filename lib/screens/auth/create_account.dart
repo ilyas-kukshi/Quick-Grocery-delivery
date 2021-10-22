@@ -35,7 +35,16 @@ class _CreateAccountState extends State<CreateAccount> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppThemeShared.appBar(title: 'Create Account', context: context),
+      appBar: AppThemeShared.appBar(
+          leading: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+            ),
+          ),
+          title: 'Create Account',
+          context: context),
       body: SingleChildScrollView(
           child: Form(
         key: createAccountForm,

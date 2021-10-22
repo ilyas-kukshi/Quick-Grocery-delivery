@@ -74,19 +74,19 @@ class _SetLocationState extends State<SetLocation> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12),
-              child: AppThemeShared.textFormField(
-                  context: context,
-                  onFieldSubmitted: (searched) {
-                    // getResult(searched);
-                  },
-                  hintText: 'Search your location'),
-            ),
-            SizedBox(height: 20),
+            // Padding(
+            //   padding: EdgeInsets.symmetric(horizontal: 12),
+            //   child: AppThemeShared.textFormField(
+            //       context: context,
+            //       onFieldSubmitted: (searched) {
+            //         // getResult(searched);
+            //       },
+            //       hintText: 'Search your location'),
+            // ),
+            //  ,
             Center(
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.8,
+                height: MediaQuery.of(context).size.height * 0.89,
                 child: GoogleMap(
                   circles: {
                     Circle(

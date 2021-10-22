@@ -278,7 +278,8 @@ class _DashboardMainState extends State<DashboardMain> {
     Stream<List<DocumentSnapshot>> stream = Geoflutterfire()
         .collection(
             collectionRef: FirebaseFirestore.instance.collection("Shops"))
-        .within(center: center, radius: 10, field: "location");
+        .within(
+            center: center, radius: 10, field: "location", strictMode: true);
     stream.listen((List<DocumentSnapshot> documentList) {
       shops.clear();
       shops = documentList;
