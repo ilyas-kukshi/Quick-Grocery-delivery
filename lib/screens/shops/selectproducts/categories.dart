@@ -105,6 +105,22 @@ class _CategoriesState extends State<Categories> {
           )
         ],
       ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        child: Container(
+            height: 50,
+            width: MediaQuery.of(context).size.width * 0.85,
+            child: AppThemeShared.argonButtonShared(
+                context: context,
+                height: 50,
+                width: MediaQuery.of(context).size.width * 0.85,
+                borderRadius: 12,
+                color: AppThemeShared.buttonColor,
+                buttonText: "Done",
+                onTap: (p1, p2, p3) {
+                  Navigator.pushNamed(context, "/dashboardMain");
+                })),
+      ),
     );
   }
 }

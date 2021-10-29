@@ -13,6 +13,8 @@ import 'package:quickgrocerydelivery/screens/dashboard/shopDetail/product_by_cat
 import 'package:quickgrocerydelivery/screens/dashboard/shopDetail/shopDetailed.dart';
 import 'package:quickgrocerydelivery/screens/onboarding/guidelines.dart';
 import 'package:quickgrocerydelivery/screens/shops/become_shop_owner.dart';
+import 'package:quickgrocerydelivery/screens/shops/myShop/manage_shop_products.dart';
+import 'package:quickgrocerydelivery/screens/shops/myShop/shop_dashboard.dart';
 import 'package:quickgrocerydelivery/screens/shops/selectproducts/categories.dart';
 import 'package:quickgrocerydelivery/screens/shops/selectproducts/products.dart';
 import 'package:quickgrocerydelivery/screens/user/myCart.dart';
@@ -53,6 +55,8 @@ class MyApp extends StatelessWidget {
 
   Route routing(RouteSettings settings) {
     switch (settings.name) {
+
+      //user
       case '/signIn':
         return PageTransition(
             child: SignIn(), type: PageTransitionType.leftToRight);
@@ -80,6 +84,8 @@ class MyApp extends StatelessWidget {
       case '/createAccountOtp':
         return PageTransition(
             child: CreateAccountOtp(), type: PageTransitionType.leftToRight);
+
+      //user
       case '/dashboardMain':
         return PageTransition(
             child: DashboardMain(), type: PageTransitionType.leftToRight);
@@ -96,6 +102,7 @@ class MyApp extends StatelessWidget {
       case '/becomeShopOwner':
         return PageTransition(
             child: BecomeShopOwner(), type: PageTransitionType.leftToRight);
+
       //folder name with file name
       case '/selectProductsCategories':
         return PageTransition(
@@ -123,7 +130,12 @@ class MyApp extends StatelessWidget {
       case '/shopsNearMe':
         return PageTransition(
             child: ShopsNearMe(), type: PageTransitionType.leftToRight);
-
+      case '/shopDashboard':
+        return PageTransition(
+            child: ShopDashboard(), type: PageTransitionType.leftToRight);
+             case '/manageProducts':
+        return PageTransition(
+            child: ManageProducts(), type: PageTransitionType.leftToRight);
       default:
         return PageTransition(
             child: SignIn(), type: PageTransitionType.leftToRight);

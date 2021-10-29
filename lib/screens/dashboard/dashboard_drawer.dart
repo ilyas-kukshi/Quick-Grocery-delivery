@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -88,6 +89,8 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                     ? Column(
                         children: [
                           GestureDetector(
+                            onTap: () =>
+                                Navigator.pushNamed(context, "/shopDashboard"),
                             child: Row(
                               children: [
                                 SizedBox(width: 10),
@@ -202,36 +205,37 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                 SizedBox(height: 10),
                 Divider(color: Colors.grey),
                 SizedBox(height: 10),
-                userType == "Customer"
-                    ? Column(
+                // userType == "Customer"
+                //     ?
+                Column(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, "/becomeShopOwner");
+                      },
+                      child: Row(
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(context, "/becomeShopOwner");
-                            },
-                            child: Row(
-                              children: [
-                                SizedBox(width: 10),
-                                Icon(
-                                  Icons.storefront_outlined,
-                                ),
-                                SizedBox(width: 10),
-                                Text(
-                                  "Become a shop owner",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headline1
-                                      ?.copyWith(fontSize: 18),
-                                ),
-                              ],
-                            ),
+                          SizedBox(width: 10),
+                          Icon(
+                            Icons.storefront_outlined,
                           ),
-                          SizedBox(height: 10),
-                          Divider(color: Colors.grey),
-                          SizedBox(height: 10),
+                          SizedBox(width: 10),
+                          Text(
+                            "Become a shop owner",
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline1
+                                ?.copyWith(fontSize: 18),
+                          ),
                         ],
-                      )
-                    : Offstage(),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Divider(color: Colors.grey),
+                    SizedBox(height: 10),
+                  ],
+                ),
+                // : Offstage(),
                 GestureDetector(
                   onTap: () {
                     DialogShared.doubleButtonDialog(
@@ -289,7 +293,9 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
   clearSharedPreference() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.clear();
-    Navigator.pushNamed(context, "/signIn");
+    await FirebaseAuth.instance
+        .signOut()
+        .whenComplete(() => Navigator.pushNamed(context, "/signIn"));
   }
 
   getStringValuesSF() async {
