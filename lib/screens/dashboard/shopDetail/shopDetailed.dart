@@ -63,7 +63,8 @@ class _ShopDetailedState extends State<ShopDetailed> {
                         arguments: CategoryModel(
                             categoryDetails[index].id,
                             categoryDetails[index].get("name"),
-                            categoryDetails[index].get("imageUrl")));
+                            categoryDetails[index].get("imageUrl"),
+                            widget.shopDoc?.id));
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -199,7 +200,7 @@ class _ShopDetailedState extends State<ShopDetailed> {
     try {
       await FirebaseFirestore.instance
           .collection("Shops")
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(widget.shopDoc?.id)
           .collection("Categories")
           .get()
           .then((value) => {
@@ -216,7 +217,7 @@ class _ShopDetailedState extends State<ShopDetailed> {
   getAllProducts() async {
     await FirebaseFirestore.instance
         .collection("Shops")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .doc(widget.shopDoc?.id)
         .collection("All Products")
         .get()
         .then((value) => {

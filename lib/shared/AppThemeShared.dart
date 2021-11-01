@@ -158,7 +158,7 @@ class AppThemeShared {
         onPressed: onPressed,
         child: Text(
           buttonText,
-          style: Theme.of(context).textTheme.headline3?.copyWith(fontSize: 16),
+          style: Theme.of(context).textTheme.headline1?.copyWith(fontSize: 16),
         ),
         style: ElevatedButton.styleFrom(primary: color),
       ),

@@ -57,4 +57,32 @@ class Utility {
     }
     return null;
   }
+
+  static String? productPriceValidator(String? name) {
+    if (name!.isEmpty) {
+      return "Please enter your product price";
+    }
+    return null;
+  }
+
+  static String? categoryNameValidator(String? name) {
+    if (name!.isEmpty) {
+      return " Please enter your category name";
+    }
+    return null;
+  }
+
+  static String? productNameValidator(String? name) {
+    if (name!.isEmpty) {
+      return " Please enter your category name";
+    }
+    return null;
+  }
+
+  static String? requestedProducNameValidator(String? name) {
+    if (name!.isEmpty) {
+      return " Please enter your name";
+    }
+    return null;
+  }
 }

@@ -6,6 +6,7 @@ class ProductModel {
   final String price;
   final String type;
   final String shopName;
+  final String shopId;
   final bool addedToShop;
   int quantity;
   bool? available;
@@ -19,6 +20,7 @@ class ProductModel {
       this.price,
       this.type,
       this.shopName,
+      this.shopId,
       this.addedToShop,
       this.quantity,
       this.available,
@@ -33,6 +35,7 @@ class UserProductModel {
   final String price;
   final String type;
   final String shopName;
+  final String shopId;
   bool addedToCart;
   bool? available;
   String? dbProductId;
@@ -45,6 +48,7 @@ class UserProductModel {
       this.price,
       this.type,
       this.shopName,
+      this.shopId,
       this.addedToCart,
       this.available,
       this.dbProductId);

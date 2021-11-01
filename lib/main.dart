@@ -13,11 +13,13 @@ import 'package:quickgrocerydelivery/screens/dashboard/shopDetail/product_by_cat
 import 'package:quickgrocerydelivery/screens/dashboard/shopDetail/shopDetailed.dart';
 import 'package:quickgrocerydelivery/screens/onboarding/guidelines.dart';
 import 'package:quickgrocerydelivery/screens/shops/become_shop_owner.dart';
+import 'package:quickgrocerydelivery/screens/shops/myShop/manage_shop_orders.dart';
 import 'package:quickgrocerydelivery/screens/shops/myShop/manage_shop_products.dart';
 import 'package:quickgrocerydelivery/screens/shops/myShop/shop_dashboard.dart';
 import 'package:quickgrocerydelivery/screens/shops/selectproducts/categories.dart';
 import 'package:quickgrocerydelivery/screens/shops/selectproducts/products.dart';
 import 'package:quickgrocerydelivery/screens/user/myCart.dart';
+import 'package:quickgrocerydelivery/screens/user/myOrders.dart';
 import 'package:quickgrocerydelivery/screens/user/setLocation.dart';
 import 'package:quickgrocerydelivery/screens/user/shops_near_me.dart';
 
@@ -133,9 +135,15 @@ class MyApp extends StatelessWidget {
       case '/shopDashboard':
         return PageTransition(
             child: ShopDashboard(), type: PageTransitionType.leftToRight);
-             case '/manageProducts':
+      case '/manageProducts':
         return PageTransition(
             child: ManageProducts(), type: PageTransitionType.leftToRight);
+      case '/manageOrders':
+        return PageTransition(
+            child: ManageOrders(), type: PageTransitionType.leftToRight);
+             case '/myOrders':
+        return PageTransition(
+            child: MyOrders(), type: PageTransitionType.leftToRight);
       default:
         return PageTransition(
             child: SignIn(), type: PageTransitionType.leftToRight);

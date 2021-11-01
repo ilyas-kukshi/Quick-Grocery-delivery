@@ -2,12 +2,16 @@ import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quickgrocerydelivery/models/productModel.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyCart extends StatefulWidget {
   const MyCart({Key? key}) : super(key: key);
@@ -17,8 +21,11 @@ class MyCart extends StatefulWidget {
 }
 
 class _MyCartState extends State<MyCart> {
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   List<ProductModel> myCartProducts = [];
   int totalPrice = 0;
+  var _razorpay = Razorpay();
+
   @override
   void initState() {
     super.initState();
@@ -191,6 +198,27 @@ class _MyCartState extends State<MyCart> {
                                   )
                                 ],
                               ),
+                              !myCartProducts[index].available!
+                                  ? Container(
+                                      height: 200,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          color: Colors.grey[200]!
+                                              .withOpacity(0.8)),
+                                      child: Center(
+                                        child: Text(
+                                          "Out of stock",
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .headline1!
+                                              .copyWith(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    )
+                                  : Offstage(),
                               GestureDetector(
                                 onTap: () {
                                   removeProductFromCart(index);
@@ -299,7 +327,13 @@ class _MyCartState extends State<MyCart> {
                       borderRadius: 12,
                       color: AppThemeShared.buttonColor,
                       buttonText: "Checkout",
-                      onTap: (p1, p2, p3) {})
+                      onTap: (p1, p2, p3) {
+                        if (totalPrice > 0)
+                          razorpayInitializaation();
+                        else
+                          Fluttertoast.showToast(
+                              msg: "Please do some shopping first");
+                      })
                 ],
               ),
             )
@@ -316,23 +350,32 @@ class _MyCartState extends State<MyCart> {
         .then((value) {
       if (value.size > 0) {
         value.docs.forEach((element) {
-          myCartProducts.add(ProductModel(
-            element.id,
-            element.get("imageUrl"),
-            element.get("name"),
-            element.get("category"),
-            element.get("price"),
-            element.get("type"),
-            element.get("shopName"),
-            true,
-            element.get("quantity"),
-            true,
-            element.get("dbProductId"),
-          ));
+          FirebaseFirestore.instance
+              .collection("Shops")
+              .doc(element.get("shopId"))
+              .collection("All Products")
+              .doc(element.id)
+              .get()
+              .then((value) {
+            myCartProducts.add(ProductModel(
+              element.id,
+              element.get("imageUrl"),
+              element.get("name"),
+              element.get("category"),
+              element.get("price"),
+              element.get("type"),
+              element.get("shopName"),
+              element.get("shopId"),
+              true,
+              element.get("quantity"),
+              value.get("available"),
+              element.get("dbProductId"),
+            ));
+            setState(() {});
+          }).whenComplete(() => totalOrderPrice());
         });
-        setState(() {});
       }
-    }).whenComplete(() => totalOrderPrice());
+    }).whenComplete(() => {});
   }
 
   subtractFromQuantity(int index) {
@@ -376,9 +419,11 @@ class _MyCartState extends State<MyCart> {
     int productPrice = 0;
     if (myCartProducts.isNotEmpty) {
       myCartProducts.forEach((element) {
-        productPrice = 0;
-        productPrice = element.quantity * int.parse(element.price);
-        totalPrice += productPrice;
+        if (element.available!) {
+          productPrice = 0;
+          productPrice = element.quantity * int.parse(element.price);
+          totalPrice += productPrice;
+        }
       });
       setState(() {});
     }
@@ -398,5 +443,101 @@ class _MyCartState extends State<MyCart> {
       Navigator.pop(context);
       setState(() {});
     });
+  }
+
+  razorpayInitializaation() {
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+
+    var options = {
+      'key': 'rzp_test_Tnp4mJfxuFjZqK',
+      'amount': totalPrice,
+      'name': 'Quick Grocery Delivery',
+      // 'description': 'Fine T-Shirt',
+      'prefill': {'contact': '9987655052'}
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+    }
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    DialogShared.loadingDialog(context, "Placing your order");
+    SharedPreferences userData = await _prefs;
+
+    myCartProducts.forEach((product) {
+      if (product.available!) {
+        FirebaseFirestore.instance
+            .collection("Shops")
+            .doc(product.shopId)
+            .collection("Orders")
+            .add({
+          "imageUrl": product.imageUrl,
+          "name": product.name,
+          "price": product.price,
+          "quantity": product.quantity,
+          "category": product.category,
+          "status": "Requested",
+          "timeStamp": FieldValue.serverTimestamp(),
+          "orderDate": DateTime.now().toString(),
+          "type": product.type,
+          "shopName": product.shopName,
+          "shopId": product.shopId,
+          "dbProductId": product.dbProductId,
+          "userName": userData.getString("name"),
+          "userPhnNumber": userData.getString("phoneNumber"),
+          "userId": userData.getString("userId"),
+          "paymentId": response.paymentId
+        }).then((doc) {
+          FirebaseFirestore.instance
+              .collection("Users")
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .collection("Orders")
+              .doc(doc.id)
+              .set({
+            "imageUrl": product.imageUrl,
+            "name": product.name,
+            "price": product.price,
+            "quantity": product.quantity,
+            "category": product.category,
+            "status": "Requested",
+            "timeStamp": FieldValue.serverTimestamp(),
+            "orderDate": DateTime.now().toString(),
+            "type": product.type,
+            "shopName": product.shopName,
+            "shopId": product.shopId,
+            "dbProductId": product.dbProductId,
+            "userName": userData.getString("name"),
+            "userPhnNumber": userData.getString("phoneNumber"),
+            "userId": userData.getString("userId"),
+            "paymentId": response.paymentId
+          }).whenComplete(() {
+            myCartProducts.clear();
+            Navigator.pop(context);
+            setState(() {});
+          });
+        });
+      }
+    });
+    Fluttertoast.showToast(msg: "Successful");
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    // Do something when payment fails
+    Fluttertoast.showToast(msg: "Unsuccessful");
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    // Do something when an external wallet was selected
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
   }
 }

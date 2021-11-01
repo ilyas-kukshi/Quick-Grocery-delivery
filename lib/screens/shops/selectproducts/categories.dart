@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:quickgrocerydelivery/models/categoryModel.dart';
-import 'package:quickgrocerydelivery/screens/shops/selectproducts/products.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -49,7 +48,8 @@ class _CategoriesState extends State<Categories> {
                                 arguments: CategoryModel(
                                     snapshot.data?.docs[index].id,
                                     snapshot.data?.docs[index]["name"],
-                                    snapshot.data?.docs[index]["imageUrl"]));
+                                    snapshot.data?.docs[index]["imageUrl"],
+                                    ""));
                           },
                           child: Column(
                             children: [

@@ -163,6 +163,7 @@ class _ProductsState extends State<Products> {
                   "name": productModel.name,
                   "price": productModel.price,
                   "category": productModel.category,
+                  "categoryId": widget.category!.id,
                   "type": productModel.type,
                   "addedToShop": true,
                   "available": true,
@@ -182,6 +183,7 @@ class _ProductsState extends State<Products> {
                       "name": productModel.name,
                       "price": productModel.price,
                       "category": productModel.category,
+                      "categoryId": widget.category!.id,
                       "type": productModel.type,
                       "addedToShop": true,
                       "available": true,
@@ -263,6 +265,8 @@ class _ProductsState extends State<Products> {
   }
 
   getAllCategoryProducts() async {
+
+    //fetching products from global for shop owner to add products
     await FirebaseFirestore.instance
         .collection("Categories")
         .doc(widget.category!.id)
@@ -280,6 +284,7 @@ class _ProductsState extends State<Products> {
               element.get("price"),
               element.get("type"),
               "",
+              "",
               true,
               0,
               false,
@@ -294,6 +299,7 @@ class _ProductsState extends State<Products> {
               element.get("category").toString(),
               element.get("price"),
               element.get("type"),
+              "",
               "",
               false,
               0,
@@ -310,6 +316,7 @@ class _ProductsState extends State<Products> {
             element.get("category").toString(),
             element.get("price"),
             element.get("type"),
+            "",
             "",
             false,
             0,

@@ -48,6 +48,8 @@ dependencies:
   shimmer: ^2.0.0  
   cached_network_image: ^3.1.0
   flutter_switch: ^0.3.2
+  razorpay_flutter: ^1.2.3
+  file_picker: ^4.1.5
 
   
   

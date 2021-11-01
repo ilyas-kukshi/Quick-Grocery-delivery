@@ -185,6 +185,7 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                 // Divider(color: Colors.grey),
                 // SizedBox(height: 10),
                 GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, "/myOrders"),
                   child: Row(
                     children: [
                       SizedBox(width: 10),

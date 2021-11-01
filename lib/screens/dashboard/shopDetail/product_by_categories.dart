@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quickgrocerydelivery/models/categoryModel.dart';
@@ -56,85 +57,112 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                       child: Card(
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Stack(
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(12),
-                                topRight: Radius.circular(12),
-                              ),
-                              child: CachedNetworkImage(
-                                width: MediaQuery.of(context).size.width * 0.45,
-                                height: 150,
-                                progressIndicatorBuilder:
-                                    (context, url, downloadProgress) =>
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(12),
+                                    topRight: Radius.circular(12),
+                                  ),
+                                  child: CachedNetworkImage(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.45,
+                                    height: 150,
+                                    progressIndicatorBuilder: (context, url,
+                                            downloadProgress) =>
                                         CircularProgressIndicator(
                                             value: downloadProgress.progress),
-                                errorWidget: (context, url, error) =>
-                                    const Icon(Icons.error),
-                                imageUrl: allProducts[index].imageUrl,
-                                fit: BoxFit.fill,
-                              ),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.error),
+                                    imageUrl: allProducts[index].imageUrl,
+                                    fit: BoxFit.fill,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text(
+                                    allProducts[index].name,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline3!
+                                        .copyWith(fontSize: 18),
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text(
+                                    "₹" +
+                                        allProducts[index].price +
+                                        " " +
+                                        allProducts[index].type,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline1!
+                                        .copyWith(fontSize: 22),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8.0),
+                                  child: Text(
+                                    allProducts[index].shopName,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline3!
+                                        .copyWith(fontSize: 18),
+                                  ),
+                                ),
+                                SizedBox(height: 12),
+                                Center(
+                                  child: AppThemeShared.argonButtonShared(
+                                    context: context,
+                                    height: 40,
+                                    width: MediaQuery.of(context).size.width *
+                                        0.35,
+                                    borderRadius: 12,
+                                    color: AppThemeShared.buttonColor,
+                                    buttonText: allProducts[index].addedToCart
+                                        ? "Go to Cart"
+                                        : "Add to Cart",
+                                    onTap: (p0, p1, p2) {
+                                      if (allProducts[index].addedToCart) {
+                                        Navigator.pushNamed(context, "/myCart");
+                                      } else {
+                                        addProductToCart(
+                                            allProducts[index], index);
+                                      }
+                                    },
+                                  ),
+                                )
+                              ],
                             ),
-                            SizedBox(height: 8),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text(
-                                allProducts[index].name,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline3!
-                                    .copyWith(fontSize: 18),
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text(
-                                "₹" +
-                                    allProducts[index].price +
-                                    " " +
-                                    allProducts[index].type,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline1!
-                                    .copyWith(fontSize: 22),
-                              ),
-                            ),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Text(
-                                allProducts[index].shopName,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline3!
-                                    .copyWith(fontSize: 18),
-                              ),
-                            ),
-                            SizedBox(height: 12),
-                            Center(
-                              child: AppThemeShared.argonButtonShared(
-                                context: context,
-                                height: 40,
-                                width: MediaQuery.of(context).size.width * 0.35,
-                                borderRadius: 12,
-                                color: AppThemeShared.buttonColor,
-                                buttonText: allProducts[index].addedToCart
-                                    ? "Go to Cart"
-                                    : "Add to Cart",
-                                onTap: (p0, p1, p2) {
-                                  if (allProducts[index].addedToCart) {
-                                    Navigator.pushNamed(context, "/myCart");
-                                  } else {
-                                    addProductToCart(allProducts[index], index);
-                                  }
-                                },
-                              ),
-                            )
+                            !allProducts[index].available!
+                                ? Container(
+                                    height: 310,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        color:
+                                            Colors.grey[200]!.withOpacity(0.8)),
+                                    child: Center(
+                                      child: Text(
+                                        "Out of stock",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .headline1!
+                                            .copyWith(
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  )
+                                : Offstage()
                           ],
                         ),
                       ),
@@ -166,9 +194,11 @@ class _ProductByCategoryState extends State<ProductByCategory> {
       "imageUrl": userProductModel.imageUrl,
       "name": userProductModel.name,
       "category": userProductModel.category,
+      "categoryId": widget.categoryModel!.id,
       "price": userProductModel.price,
       "type": userProductModel.type,
       "shopName": userProductModel.shopName,
+      "shopId": userProductModel.shopId,
       "dbProductId": userProductModel.dbProductId,
       "quantity": 1,
     }).whenComplete(() {
@@ -196,7 +226,7 @@ class _ProductByCategoryState extends State<ProductByCategory> {
     try {
       await FirebaseFirestore.instance
           .collection("Shops")
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(widget.categoryModel?.shopId)
           .collection("Categories")
           .doc(widget.categoryModel!.id)
           .collection("Products")
@@ -213,8 +243,9 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                         element.get("price"),
                         element.get("type"),
                         element.get("shopName"),
+                        element.get("shopId"),
                         myCartProductIds.contains(element.id) ? true : false,
-                        true,
+                        element.get("available"),
                         element.get("dbProductId"),
                       ));
                     })

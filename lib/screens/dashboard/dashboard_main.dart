@@ -213,8 +213,11 @@ class _DashboardMainState extends State<DashboardMain> {
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, "/productByCategory",
-            arguments: CategoryModel(categories[index].id,
-                categories[index]["name"], categories[index]["imageUrl"]));
+            arguments: CategoryModel(
+                categories[index].id,
+                categories[index]["name"],
+                categories[index]["imageUrl"],
+                shops[0].id));
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),

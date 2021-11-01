@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
+import 'package:quickgrocerydelivery/shared/utility.dart';
 
 class ManageProducts extends StatefulWidget {
   const ManageProducts({Key? key}) : super(key: key);
@@ -33,6 +34,16 @@ class _ManageProductsState extends State<ManageProducts> {
                 Navigator.pop(context);
               },
               child: Icon(Icons.arrow_back_ios, color: Colors.white)),
+          actions: [
+            GestureDetector(
+              onTap: () => showRequestProductDialog(),
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(width: 10),
+          ],
           title: "Manage Products",
           context: context),
       body: Column(
@@ -186,51 +197,9 @@ class _ManageProductsState extends State<ManageProducts> {
                                               inactiveTextColor: Colors.white,
                                               valueFontSize: 16,
                                               onToggle: (val) {
-                                                setState(() {
-                                                  int categoryIndex =
-                                                      categoryName.indexOf(
-                                                    snapshot.data?.docs[index]
-                                                        ["category"],
-                                                  );
-                                                  try {
-                                                    FirebaseFirestore.instance
-                                                        .collection("Shops")
-                                                        .doc(FirebaseAuth
-                                                            .instance
-                                                            .currentUser!
-                                                            .uid)
-                                                        .collection(
-                                                            "All Products")
-                                                        .doc(snapshot.data
-                                                            ?.docs[index].id)
-                                                        .update({
-                                                      "available": !snapshot
-                                                              .data?.docs[index]
-                                                          ["available"],
-                                                    });
-                                                    FirebaseFirestore.instance
-                                                        .collection("Shops")
-                                                        .doc(FirebaseAuth
-                                                            .instance
-                                                            .currentUser!
-                                                            .uid)
-                                                        .collection(
-                                                            "Categories")
-                                                        .doc(categoryId[
-                                                            categoryIndex - 1])
-                                                        .collection("Products")
-                                                        .doc(snapshot.data
-                                                            ?.docs[index].id)
-                                                        .update({
-                                                      "available": !snapshot
-                                                              .data?.docs[index]
-                                                          ["available"],
-                                                    });
-                                                  } on FirebaseException catch (e) {
-                                                    Fluttertoast.showToast(
-                                                        msg: e.toString());
-                                                  }
-                                                });
+                                                setAvaillability(
+                                                    snapshot.data?.docs[index],
+                                                    index);
                                               },
                                             ),
                                           ],
@@ -267,7 +236,6 @@ class _ManageProductsState extends State<ManageProducts> {
     );
   }
 
-  loadData() async {}
   getCategories() async {
     //caegories Id available at the shop
     // /Shops/85yZygsrqfYnExdAC17E53cRnnX2/Categories
@@ -304,17 +272,6 @@ class _ManageProductsState extends State<ManageProducts> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 8),
-                    Text("Edit",
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline1!
-                            .copyWith(fontSize: 16)),
-                    SizedBox(height: 8),
-                    Divider(
-                      color: Colors.grey[200],
-                      thickness: 2,
-                    ),
                     SizedBox(height: 8),
                     GestureDetector(
                       onTap: () {
@@ -356,5 +313,125 @@ class _ManageProductsState extends State<ManageProducts> {
         ),
       ),
     );
+  }
+
+  setAvaillability(DocumentSnapshot snapshot, int index) {
+    setState(() {
+      int categoryIndex = categoryName.indexOf(
+        snapshot["category"],
+      );
+      try {
+        FirebaseFirestore.instance
+            .collection("Shops")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection("All Products")
+            .doc(snapshot.id)
+            .update({
+          "available": !snapshot["available"],
+        });
+        FirebaseFirestore.instance
+            .collection("Shops")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection("Categories")
+            .doc(categoryId[categoryIndex - 1])
+            .collection("Products")
+            .doc(snapshot.id)
+            .update({
+          "available": !snapshot["available"],
+        });
+      } on FirebaseException catch (e) {
+        Fluttertoast.showToast(msg: e.toString());
+      }
+    });
+  }
+
+  showRequestProductDialog() {
+    TextEditingController requestedProductNameController =
+        new TextEditingController();
+
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Container(
+              height: 300,
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(12)),
+              child: Column(
+                children: [
+                  SizedBox(height: 20),
+                  Text(
+                    "Request the name of the product",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline1!
+                        .copyWith(fontSize: 24),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: AppThemeShared.textFormField(
+                      context: context,
+                      hintText: 'Enter product name',
+                      controller: requestedProductNameController,
+                      autoFocus: true,
+                      validator: Utility.requestedProducNameValidator,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      onFieldSubmitted: (p0) {},
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        AppThemeShared.sharedRaisedButton(
+                          context: context,
+                          height: 50,
+                          width: 100,
+                          borderRadius: 12,
+                          color: Colors.red,
+                          buttonText: "Cancel",
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        SizedBox(width: 8),
+                        AppThemeShared.sharedRaisedButton(
+                          context: context,
+                          height: 50,
+                          width: 100,
+                          borderRadius: 12,
+                          color: Colors.green,
+                          buttonText: "Request",
+                          onPressed: () {
+                            if (requestedProductNameController
+                                .text.isNotEmpty) {
+                              FirebaseFirestore.instance
+                                  .collection("Product Requests")
+                                  .add({
+                                "productName":
+                                    requestedProductNameController.text,
+                                "shopId":
+                                    FirebaseAuth.instance.currentUser!.uid,
+                              }).whenComplete(() {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        "Thank you for your patience. We will add this product soon.",
+                                    toastLength: Toast.LENGTH_LONG);
+                                Navigator.pop(context);
+                              });
+                            }
+                          },
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 }
