@@ -9,6 +9,7 @@ import 'package:quickgrocerydelivery/screens/auth/create_account_otp.dart';
 import 'package:quickgrocerydelivery/screens/auth/otp.dart';
 import 'package:quickgrocerydelivery/screens/auth/signin.dart';
 import 'package:quickgrocerydelivery/screens/dashboard/dashboard_main.dart';
+import 'package:quickgrocerydelivery/screens/dashboard/dashboard_product_by_category.dart';
 import 'package:quickgrocerydelivery/screens/dashboard/shopDetail/product_by_categories.dart';
 import 'package:quickgrocerydelivery/screens/dashboard/shopDetail/shopDetailed.dart';
 import 'package:quickgrocerydelivery/screens/onboarding/guidelines.dart';
@@ -141,9 +142,14 @@ class MyApp extends StatelessWidget {
       case '/manageOrders':
         return PageTransition(
             child: ManageOrders(), type: PageTransitionType.leftToRight);
-             case '/myOrders':
+      case '/myOrders':
         return PageTransition(
             child: MyOrders(), type: PageTransitionType.leftToRight);
+      case '/dashboardProductByCategory':
+        return PageTransition(
+            child: DashboardProductByCategory(
+                categoryModel: settings.arguments as CategoryModel),
+            type: PageTransitionType.leftToRight);
       default:
         return PageTransition(
             child: SignIn(), type: PageTransitionType.leftToRight);

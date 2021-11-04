@@ -25,30 +25,40 @@ class _ShopsNearMeState extends State<ShopsNearMe> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppThemeShared.appBar(
-          leading: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Icon(
-              Icons.arrow_back_ios,
-              color: Colors.white,
+        appBar: AppThemeShared.appBar(
+            leading: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Icon(
+                Icons.arrow_back_ios,
+                color: Colors.white,
+              ),
             ),
-          ),
-          title: "Shops Near Me",
-          context: context),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: shops.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return shopsWidget(index);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
+            title: "Shops Near Me",
+            context: context),
+        body: shops.length > 0
+            ? Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: shops.length,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        return shopsWidget(index);
+                      },
+                    ),
+                  ),
+                ],
+              )
+            : Center(
+                child: Text(
+                  "No shops near you. Please inform your nearby general stores about us.😊",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1!
+                      .copyWith(fontSize: 22),
+                ),
+              ));
   }
 
   Widget shopsWidget(int index) {
@@ -130,7 +140,8 @@ class _ShopsNearMeState extends State<ShopsNearMe> {
     Stream<List<DocumentSnapshot>> stream = Geoflutterfire()
         .collection(
             collectionRef: FirebaseFirestore.instance.collection("Shops"))
-        .within(center: center, radius: 10, field: "location",strictMode: true);
+        .within(
+            center: center, radius: 10, field: "location", strictMode: true);
     stream.listen((List<DocumentSnapshot> documentList) {
       shops.clear();
       shops = documentList;

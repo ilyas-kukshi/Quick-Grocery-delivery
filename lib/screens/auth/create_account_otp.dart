@@ -8,6 +8,7 @@ import 'package:quickgrocerydelivery/models/usermodel.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
 import 'package:quickgrocerydelivery/shared/utility.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CreateAccountOtp extends StatefulWidget {
   final UserModel? userModel;
@@ -120,10 +121,27 @@ class _CreateAccountOtpState extends State<CreateAccountOtp> {
           'type': "Customer",
           'enabled': true
         }).whenComplete(() {
+          setUserData();
           Navigator.pop(context);
           Navigator.pushNamed(context, "/dashboardMain");
         });
       }
     }
+  }
+
+  void setUserData() async {
+    SharedPreferences userData = await SharedPreferences.getInstance();
+
+    FirebaseFirestore.instance
+        .collection("Users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((DocumentSnapshot value) {
+      userData.clear();
+      userData.setString("userId", value.id);
+      userData.setString("name", value.get("name"));
+      userData.setString("phoneNumber", value.get("phoneNumber"));
+      userData.setString("type", value.get("type"));
+    });
   }
 }

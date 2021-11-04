@@ -110,6 +110,14 @@ class _SetLocationState extends State<SetLocation> {
                   },
                   markers: {
                     Marker(
+                      draggable: true,
+                      onDrag: (draggedLocation) {
+                        setState(() {
+                          latitude = draggedLocation.latitude;
+                          longitude = draggedLocation.longitude;
+                          locationChanged = true;
+                        });
+                      },
                       markerId: MarkerId("Your Location"),
                       position: LatLng(latitude, longitude),
                     ),

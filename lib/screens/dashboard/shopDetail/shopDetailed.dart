@@ -64,7 +64,8 @@ class _ShopDetailedState extends State<ShopDetailed> {
                             categoryDetails[index].id,
                             categoryDetails[index].get("name"),
                             categoryDetails[index].get("imageUrl"),
-                            widget.shopDoc?.id));
+                            widget.shopDoc?.id,
+                            []));
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12.0),

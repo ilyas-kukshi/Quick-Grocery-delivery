@@ -137,6 +137,7 @@ class _OtpState extends State<Otp> {
       userData.setString("name", value.get("name"));
       userData.setString("phoneNumber", value.get("phoneNumber"));
       userData.setString("type", value.get("type"));
+      
     });
   }
 }

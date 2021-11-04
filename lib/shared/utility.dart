@@ -85,4 +85,11 @@ class Utility {
     }
     return null;
   }
+
+   static String? addressValidator(String? name) {
+    if (name!.isEmpty) {
+      return " Please enter your name";
+    }
+    return null;
+  }
 }

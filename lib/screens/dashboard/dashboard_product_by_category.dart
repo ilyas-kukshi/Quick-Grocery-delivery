@@ -1,8 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quickgrocerydelivery/models/categoryModel.dart';
@@ -10,15 +8,17 @@ import 'package:quickgrocerydelivery/models/productModel.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 
 // ignore: must_be_immutable
-class ProductByCategory extends StatefulWidget {
+class DashboardProductByCategory extends StatefulWidget {
   CategoryModel? categoryModel;
-  ProductByCategory({Key? key, this.categoryModel}) : super(key: key);
+  DashboardProductByCategory({Key? key, this.categoryModel}) : super(key: key);
 
   @override
-  _ProductByCategoryState createState() => _ProductByCategoryState();
+  _DashboardProductByCategoryState createState() =>
+      _DashboardProductByCategoryState();
 }
 
-class _ProductByCategoryState extends State<ProductByCategory> {
+class _DashboardProductByCategoryState
+    extends State<DashboardProductByCategory> {
   List<UserProductModel> allProducts = [];
   List<String> myCartProductIds = [];
   @override
@@ -105,10 +105,9 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                                     style: Theme.of(context)
                                         .textTheme
                                         .headline1!
-                                        .copyWith(fontSize: 20),
+                                        .copyWith(fontSize: 22),
                                   ),
                                 ),
-                                SizedBox(height: 8),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8.0),
@@ -217,44 +216,43 @@ class _ProductByCategoryState extends State<ProductByCategory> {
         .collection("My Cart")
         .get()
         .then((value) {
-      if (value.docs.length > 0) {
-        value.docs.forEach((element) {
-          myCartProductIds.add(element.id);
-        });
-      }
+      value.docs.forEach((element) {
+        myCartProductIds.add(element.id);
+      });
     }).whenComplete(() => getProductByCategory());
   }
 
   getProductByCategory() async {
     try {
-      await FirebaseFirestore.instance
-          .collection("Shops")
-          .doc(widget.categoryModel?.shopId)
-          .collection("Categories")
-          .doc(widget.categoryModel!.id)
-          .collection("Products")
-          .get()
-          .then((value) => {
-                if (value.size > 0)
-                  {
-                    value.docs.forEach((element) {
-                      allProducts.add(UserProductModel(
-                        element.id,
-                        element.get("imageUrl"),
-                        element.get("name"),
-                        element.get("category"),
-                        element.get("price"),
-                        element.get("type"),
-                        element.get("shopName"),
-                        element.get("shopId"),
-                        myCartProductIds.contains(element.id) ? true : false,
-                        element.get("available"),
-                        element.get("dbProductId"),
-                      ));
-                    })
-                  }
-              });
-      setState(() {});
+      widget.categoryModel?.shopDocs!.forEach((shopDoc) async {
+        await FirebaseFirestore.instance
+            .collection("Shops")
+            .doc(shopDoc.id)
+            .collection("Categories")
+            .doc(widget.categoryModel!.id)
+            .collection("Products")
+            .get()
+            .then((value) {
+          if (value.size > 0) {
+            value.docs.forEach((element) {
+              allProducts.add(UserProductModel(
+                element.id,
+                element.get("imageUrl"),
+                element.get("name"),
+                element.get("category"),
+                element.get("price"),
+                element.get("type"),
+                element.get("shopName"),
+                element.get("shopId"),
+                myCartProductIds.contains(element.id) ? true : false,
+                element.get("available"),
+                element.get("dbProductId"),
+              ));
+            });
+          }
+          setState(() {});
+        });
+      });
     } on FirebaseException catch (e) {
       Fluttertoast.showToast(msg: e.toString());
     }

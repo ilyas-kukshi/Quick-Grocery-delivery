@@ -39,7 +39,7 @@ class _CategoriesState extends State<Categories> {
                       itemCount: snapshot.data?.docs.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2),
+                              crossAxisCount: 2, mainAxisExtent: 230),
                       itemBuilder: (context, index) {
                         return GestureDetector(
                           onTap: () {
@@ -49,36 +49,50 @@ class _CategoriesState extends State<Categories> {
                                     snapshot.data?.docs[index].id,
                                     snapshot.data?.docs[index]["name"],
                                     snapshot.data?.docs[index]["imageUrl"],
-                                    ""));
+                                    "", []));
                           },
-                          child: Column(
-                            children: [
-                              CachedNetworkImage(
-                                height: 150,
-                                width: 150,
-                                progressIndicatorBuilder:
-                                    (context, url, downloadProgress) =>
-                                        SizedBox(
-                                  height: 80,
-                                  width: 80,
-                                  child: CircularProgressIndicator(
-                                      value: downloadProgress.progress),
-                                ),
-                                errorWidget: (context, url, error) =>
-                                    const Icon(Icons.error),
-                                imageUrl: snapshot.data?.docs[index]
-                                    ["imageUrl"],
-                                fit: BoxFit.fill,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(12),
+                                        topRight: Radius.circular(12)),
+                                    child: CachedNetworkImage(
+                                      height: 150,
+                                      width: MediaQuery.of(context).size.width,
+                                      progressIndicatorBuilder:
+                                          (context, url, downloadProgress) =>
+                                              SizedBox(
+                                        height: 80,
+                                        width: 80,
+                                        child: CircularProgressIndicator(
+                                            value: downloadProgress.progress),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.error),
+                                      imageUrl: snapshot.data?.docs[index]
+                                          ["imageUrl"],
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    snapshot.data?.docs[index]["name"],
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline1
+                                        ?.copyWith(fontSize: 18),
+                                  ),
+                                  SizedBox(height: 8),
+                                ],
                               ),
-                              Text(
-                                snapshot.data?.docs[index]["name"],
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headline3
-                                    ?.copyWith(fontSize: 18),
-                              )
-                            ],
+                            ),
                           ),
                         );
                       },

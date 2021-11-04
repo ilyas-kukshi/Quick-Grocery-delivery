@@ -26,6 +26,8 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
   TextEditingController locationController = TextEditingController();
   TextEditingController shopAddressController = TextEditingController();
 
+   Future<SharedPreferences> _prefs = SharedPreferences.getInstance(); 
+
   @override
   void initState() {
     super.initState();
@@ -134,9 +136,9 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
                     final valid = becomeShopOwnerForm.currentState!.validate();
                     Navigator.pushNamed(context, "/selectProductsCategories");
 
-                    // if (valid) {
-                    //   addShop();
-                    // }
+                    if (valid) {
+                      addShop();
+                    }
                   },
                 )
               ],
@@ -165,6 +167,8 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
               .collection("Users")
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .update({"type": "Shop"}).whenComplete(() {
+                 
+
             Navigator.pushNamed(context, "/selectProductsCategories");
           });
         } on FirebaseException catch (e) {
@@ -270,5 +274,10 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
       locationController.text = '${place.subLocality}, ${place.locality}';
     });
     // print(Address);
+  }
+
+  setUserDataSP() async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.setString("type", "Shop");
   }
 }

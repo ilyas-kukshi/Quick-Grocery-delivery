@@ -33,48 +33,81 @@ class _ManageOrdersState extends State<ManageOrders> {
                   .collection("Shops")
                   .doc(FirebaseAuth.instance.currentUser!.uid)
                   .collection("Orders")
-                  .orderBy("timeStamp")
+                  .orderBy("timeStamp", descending: true)   
                   .snapshots(),
               // initialData: initialData,
               builder: (BuildContext context, AsyncSnapshot snapshot) {
                 if (snapshot.connectionState == ConnectionState.active) {
                   if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data.size,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width * 0.85,
-                              decoration: BoxDecoration(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    customerDetails(snapshot.data.docs[index]),
-                                    SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: Divider(color: Colors.grey)),
-                                    SizedBox(height: 8),
-                                    productDetails(snapshot.data.docs[index])
-                                  ],
+                    if (snapshot.data.size > 0) {
+                      return ListView.builder(
+                        itemCount: snapshot.data.size,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width * 0.85,
+                                decoration: BoxDecoration(),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      customerDetails(
+                                          snapshot.data.docs[index]),
+                                      SizedBox(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: Divider(color: Colors.grey)),
+                                      SizedBox(height: 8),
+                                      productDetails(snapshot.data.docs[index])
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    );
+                          );
+                        },
+                      );
+                    } else {
+                      return Center(
+                        child: Text(
+                          "No orders data available.",
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline1!
+                              .copyWith(fontSize: 24),
+                        ),
+                      );
+                    }
                   } else {
-                    return Text("No orders data available");
+                    return Center(
+                      child: Text(
+                        "There is some problem.",
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline1!
+                            .copyWith(fontSize: 24),
+                      ),
+                    );
                   }
                 } else {
-                  return Text("Loading Data...");
+                  return Center(
+                    child: Text(
+                      "Loading Data...",
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline1!
+                          .copyWith(fontSize: 24),
+                    ),
+                  );
                 }
               },
             ),
@@ -95,34 +128,36 @@ class _ManageOrdersState extends State<ManageOrders> {
                 .copyWith(fontSize: 16, fontWeight: FontWeight.bold)),
         Row(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(width: 200, child: Divider(color: Colors.grey)),
-                Text(
-                  "Name: " + customerDetails.get("userName"),
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline3!
-                      .copyWith(fontSize: 14),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  "Phone Number: " + customerDetails.get("userPhnNumber"),
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline3!
-                      .copyWith(fontSize: 14),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  "Address: ",
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline3!
-                      .copyWith(fontSize: 14),
-                ),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(width: 200, child: Divider(color: Colors.grey)),
+                  Text(
+                    "Name: " + customerDetails.get("userName"),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline3!
+                        .copyWith(fontSize: 14),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    "Phone Number: " + customerDetails.get("userPhnNumber"),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline3!
+                        .copyWith(fontSize: 14),
+                  ),
+                  SizedBox(height: 6),
+                  Text(
+                    "Address: " + customerDetails.get("userAddress"),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline3!
+                        .copyWith(fontSize: 14),
+                  ),
+                ],
+              ),
             ),
             Column(
               children: [],

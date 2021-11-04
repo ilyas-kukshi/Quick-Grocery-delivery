@@ -258,6 +258,7 @@ class _ManageProductsState extends State<ManageProducts> {
   }
 
   Widget popupMenu(DocumentSnapshot snapshot, int index) {
+    TextEditingController changePriceController = TextEditingController();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Align(
@@ -272,6 +273,76 @@ class _ManageProductsState extends State<ManageProducts> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Dialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                              child: Container(
+                                height: 120,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: AppThemeShared.textFormField(
+                                      context: context,
+                                      labelText: 'Change Price',
+                                      hintText: snapshot.get("price"),
+                                      controller: changePriceController,
+                                      textInputAction: TextInputAction.done,
+                                      keyboardType: TextInputType.number,
+                                      onFieldSubmitted: (price) {
+                                        int categoryIndex =
+                                            categoryName.indexOf(
+                                          snapshot["category"],
+                                        );
+                                        try {
+                                          FirebaseFirestore.instance
+                                              .collection("Shops")
+                                              .doc(FirebaseAuth
+                                                  .instance.currentUser!.uid)
+                                              .collection("All Products")
+                                              .doc(snapshot.id)
+                                              .update({"price": price});
+                                          FirebaseFirestore.instance
+                                              .collection("Shops")
+                                              .doc(FirebaseAuth
+                                                  .instance.currentUser!.uid)
+                                              .collection("Categories")
+                                              .doc(
+                                                  categoryId[categoryIndex - 1])
+                                              .collection("Products")
+                                              .doc(snapshot.id)
+                                            ..update({"price": price})
+                                                .whenComplete(() {
+                                              Navigator.pop(context);
+                                              Navigator.pop(context);
+                                            });
+                                        } on FirebaseException catch (e) {
+                                          Fluttertoast.showToast(
+                                              msg: e.toString());
+                                        }
+                                      },
+                                    )),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                      child: Text("Change Price",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline1!
+                              .copyWith(fontSize: 16)),
+                    ),
+                    SizedBox(height: 8),
+                    Divider(
+                      color: Colors.grey,
+                    ),
                     SizedBox(height: 8),
                     GestureDetector(
                       onTap: () {

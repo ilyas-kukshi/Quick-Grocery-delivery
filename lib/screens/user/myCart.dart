@@ -2,7 +2,6 @@ import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -10,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quickgrocerydelivery/models/productModel.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
+import 'package:quickgrocerydelivery/shared/utility.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,6 +24,7 @@ class _MyCartState extends State<MyCart> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   List<ProductModel> myCartProducts = [];
   int totalPrice = 0;
+  String address = '';
   var _razorpay = Razorpay();
 
   @override
@@ -328,11 +329,7 @@ class _MyCartState extends State<MyCart> {
                       color: AppThemeShared.buttonColor,
                       buttonText: "Checkout",
                       onTap: (p1, p2, p3) {
-                        if (totalPrice > 0)
-                          razorpayInitializaation();
-                        else
-                          Fluttertoast.showToast(
-                              msg: "Please do some shopping first");
+                        addressDialog();
                       })
                 ],
               ),
@@ -445,14 +442,14 @@ class _MyCartState extends State<MyCart> {
     });
   }
 
-  razorpayInitializaation() {
+  razorpayInitialization() {
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
 
     var options = {
-      'key': 'rzp_test_Tnp4mJfxuFjZqK',
-      'amount': totalPrice,
+      'key': 'rzp_test_Cp2zDxiSmm432f',
+      'amount': totalPrice * 100,
       'name': 'Quick Grocery Delivery',
       // 'description': 'Fine T-Shirt',
       'prefill': {'contact': '9987655052'}
@@ -491,6 +488,7 @@ class _MyCartState extends State<MyCart> {
           "userName": userData.getString("name"),
           "userPhnNumber": userData.getString("phoneNumber"),
           "userId": userData.getString("userId"),
+          "userAddress": address,
           "paymentId": response.paymentId
         }).then((doc) {
           FirebaseFirestore.instance
@@ -514,9 +512,20 @@ class _MyCartState extends State<MyCart> {
             "userName": userData.getString("name"),
             "userPhnNumber": userData.getString("phoneNumber"),
             "userId": userData.getString("userId"),
+            "userAddress": address,
             "paymentId": response.paymentId
           }).whenComplete(() {
+            myCartProducts.forEach((element) {
+              FirebaseFirestore.instance
+                  .collection("Users")
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .collection("My Cart")
+                  .doc(element.id)
+                  .delete();
+            });
+
             myCartProducts.clear();
+            Navigator.pop(context);
             Navigator.pop(context);
             setState(() {});
           });
@@ -528,11 +537,70 @@ class _MyCartState extends State<MyCart> {
 
   void _handlePaymentError(PaymentFailureResponse response) {
     // Do something when payment fails
-    Fluttertoast.showToast(msg: "Unsuccessful");
+
+    if (response.code == 2) {
+      Fluttertoast.showToast(msg: "Payment Cancelled");
+    } else
+      Fluttertoast.showToast(msg: response.message.toString());
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     // Do something when an external wallet was selected
+  }
+
+  addressDialog() {
+    TextEditingController addressController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            height: 260,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              children: [
+                Padding(
+                    padding: EdgeInsets.all(12),
+                    child: AppThemeShared.textFormField(
+                        context: context,
+                        hintText: 'Please enter your full address',
+                        maxLines: 5,
+                        controller: addressController,
+                        validator: Utility.addressValidator,
+                        textInputAction: TextInputAction.done)),
+                Padding(
+                  padding: EdgeInsets.all(12),
+                  child: AppThemeShared.argonButtonShared(
+                      context: context,
+                      height: 40,
+                      width: MediaQuery.of(context).size.width,
+                      borderRadius: 12,
+                      color: AppThemeShared.buttonColor,
+                      buttonText: "Checkout",
+                      onTap: (p0, p1, p2) {
+                        if (addressController.text.isNotEmpty) {
+                          if (totalPrice > 0) {
+                            address = addressController.text;
+                            razorpayInitialization();
+                          } else
+                            Fluttertoast.showToast(
+                                msg: "Please do some shopping first");
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: "Please enter your address");
+                        }
+                      }),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override

@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_switch/flutter_switch.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -105,6 +107,27 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                                       .headline1
                                       ?.copyWith(fontSize: 18),
                                 ),
+                                Spacer(),
+                                FutureBuilder(
+                                  future: shopStatus(),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                      if (snapshot.hasData) {
+                                        return FlutterSwitch(
+                                          value: snapshot.data,
+                                          onToggle: (value) {
+                                            changeShopStatus(value);
+                                          },
+                                        );
+                                      } else
+                                        return Container();
+                                    } else
+                                      return Container();
+                                  },
+                                ),
+                                SizedBox(width: 10),
                               ],
                             ),
                           ),
@@ -206,37 +229,36 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                 SizedBox(height: 10),
                 Divider(color: Colors.grey),
                 SizedBox(height: 10),
-                // userType == "Customer"
-                //     ?
-                Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, "/becomeShopOwner");
-                      },
-                      child: Row(
+                userType == "Customer"
+                    ? Column(
                         children: [
-                          SizedBox(width: 10),
-                          Icon(
-                            Icons.storefront_outlined,
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, "/becomeShopOwner");
+                            },
+                            child: Row(
+                              children: [
+                                SizedBox(width: 10),
+                                Icon(
+                                  Icons.storefront_outlined,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  "Become a shop owner",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline1
+                                      ?.copyWith(fontSize: 18),
+                                ),
+                              ],
+                            ),
                           ),
-                          SizedBox(width: 10),
-                          Text(
-                            "Become a shop owner",
-                            style: Theme.of(context)
-                                .textTheme
-                                .headline1
-                                ?.copyWith(fontSize: 18),
-                          ),
+                          SizedBox(height: 10),
+                          Divider(color: Colors.grey),
+                          SizedBox(height: 10),
                         ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Divider(color: Colors.grey),
-                    SizedBox(height: 10),
-                  ],
-                ),
-                // : Offstage(),
+                      )
+                    : Offstage(),
                 GestureDetector(
                   onTap: () {
                     DialogShared.doubleButtonDialog(
@@ -264,8 +286,6 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                   ),
                 ),
                 SizedBox(height: 10),
-
-                //
               ],
             ),
           ),
@@ -306,4 +326,25 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
   static String getInitials(String fullName) => fullName.isNotEmpty
       ? fullName.trim().split(' ').map((l) => l[0]).take(2).join().toUpperCase()
       : '';
+
+  Future<bool>? shopStatus() async {
+    bool enabled = false;
+    await FirebaseFirestore.instance
+        .collection("Shops")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((value) {
+      enabled = value.get("enabled");
+    });
+    return enabled;
+  }
+
+  void changeShopStatus(bool value) async {
+    await FirebaseFirestore.instance
+        .collection("Shops")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      "enabled": value,
+    });
+  }
 }

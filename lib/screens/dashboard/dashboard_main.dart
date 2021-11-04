@@ -90,82 +90,97 @@ class _DashboardMainState extends State<DashboardMain> {
             ],
           ),
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 20),
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 12),
-            //   child: Text(
-            //     "Nearby Shops",
-            //     style: Theme.of(context)
-            //         .textTheme
-            //         .headline1!
-            //         .copyWith(fontSize: 24),
-            //   ),
-            // ),
-            Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: Text(
-                "Nearby Shops",
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1!
-                    .copyWith(fontSize: 24),
-              ),
-            ),
-            // SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  itemCount: shops.length,
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    return shopsWidget(index);
-                  },
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20),
+              // Padding(
+              //   padding: const EdgeInsets.symmetric(horizontal: 12),
+              //   child: Text(
+              //     "Nearby Shops",
+              //     style: Theme.of(context)
+              //         .textTheme
+              //         .headline1!
+              //         .copyWith(fontSize: 24),
+              //   ),
+              // ),
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text(
+                  "Nearby Shops",
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1!
+                      .copyWith(fontSize: 24),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: Text(
-                "Categories",
-                style: Theme.of(context)
-                    .textTheme
-                    .headline1!
-                    .copyWith(fontSize: 24),
+              // SizedBox(height: 20),
+              shops.length > 0
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: SizedBox(
+                        height: 200,
+                        child: ListView.builder(
+                          itemCount: shops.length,
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) {
+                            return shopsWidget(index);
+                          },
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: Text(
+                          "No shops near you. Please inform your nearby general stores about us.😊",
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline1!
+                              .copyWith(fontSize: 20),
+                        ),
+                      ),
+                    ),
+              SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text(
+                  "Categories",
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1!
+                      .copyWith(fontSize: 24),
+                ),
               ),
-            ),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: SizedBox(
-                height: 200,
-                child: ListView.builder(
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, mainAxisExtent: 230),
                   itemCount: categories.length,
-                  scrollDirection: Axis.horizontal,
                   shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     return categoryWidget(index);
                   },
                 ),
               ),
-            ),
 
-            // Expanded(child: GridView.builder(
-            // //  itemCount: allProducts.length,
-            //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            //             crossAxisCount: 2,
-            //             mainAxisExtent: 300,
-            //             mainAxisSpacing: 12),
-            //   itemBuilder: (context, index) {
-            //     return Container();
-            //   },))
-          ],
+              // Expanded(child: GridView.builder(
+              // //  itemCount: allProducts.length,
+              //         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              //             crossAxisCount: 2,
+              //             mainAxisExtent: 300,
+              //             mainAxisSpacing: 12),
+              //   itemBuilder: (context, index) {
+              //     return Container();
+              //   },))
+            ],
+          ),
         ),
       ),
     );
@@ -212,15 +227,19 @@ class _DashboardMainState extends State<DashboardMain> {
   Widget categoryWidget(int index) {
     return GestureDetector(
       onTap: () {
-        Navigator.pushNamed(context, "/productByCategory",
-            arguments: CategoryModel(
-                categories[index].id,
-                categories[index]["name"],
-                categories[index]["imageUrl"],
-                shops[0].id));
+        Navigator.pushNamed(
+          context,
+          "/dashboardProductByCategory",
+          arguments: CategoryModel(
+              categories[index].id,
+              categories[index]["name"],
+              categories[index]["imageUrl"],
+              "",
+              shops),
+        );
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
+        padding: const EdgeInsets.all(12),
         child: Card(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -228,14 +247,12 @@ class _DashboardMainState extends State<DashboardMain> {
             Column(children: [
               SizedBox(
                   height: 150,
-                  width: 150,
+                  width: MediaQuery.of(context).size.width,
                   child: ClipRRect(
                     borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(12),
                         topRight: Radius.circular(12)),
                     child: CachedNetworkImage(
-                      width: 100,
-                      height: 100,
                       progressIndicatorBuilder:
                           (context, url, downloadProgress) =>
                               CircularProgressIndicator(
@@ -246,7 +263,7 @@ class _DashboardMainState extends State<DashboardMain> {
                       fit: BoxFit.fill,
                     ),
                   )),
-              SizedBox(height: 8),
+              SizedBox(height: 12),
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Text(
@@ -285,7 +302,12 @@ class _DashboardMainState extends State<DashboardMain> {
             center: center, radius: 10, field: "location", strictMode: true);
     stream.listen((List<DocumentSnapshot> documentList) {
       shops.clear();
-      shops = documentList;
+      documentList.forEach((element) {
+        if (element.get("enabled")) {
+          shops.add(element);
+        }
+      });
+      // shops = documentList;
       setState(() {});
     });
   }

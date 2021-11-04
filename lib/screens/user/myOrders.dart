@@ -29,33 +29,64 @@ class _MyOrdersState extends State<MyOrders> {
             .collection("Users")
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .collection("Orders")
-            .orderBy("timeStamp")
+            .orderBy("timeStamp", descending: true)
             .snapshots(),
         // initialData: initialData,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.active) {
             if (snapshot.hasData) {
-              return ListView.builder(
-                itemCount: snapshot.data.size,
-                itemBuilder: (BuildContext context, int index) {
-                  return Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      child: Container(
-                          width: MediaQuery.of(context).size.width * 0.85,
-                          decoration: BoxDecoration(),
-                          child: productDetails(snapshot.data.docs[index])),
-                    ),
-                  );
-                },
-              );
+              if (snapshot.data.size > 0) {
+                return ListView.builder(
+                  itemCount: snapshot.data.size,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                        child: Container(
+                            width: MediaQuery.of(context).size.width * 0.85,
+                            decoration: BoxDecoration(),
+                            child: productDetails(snapshot.data.docs[index])),
+                      ),
+                    );
+                  },
+                );
+              } else {
+                return Center(
+                  child: Text(
+                    "You haven't bought anything yet? Your kitchen needs some groceries.",
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline1!
+                        .copyWith(fontSize: 24),
+                  ),
+                );
+              }
             } else {
-              return Text("No orders data available");
+              return Center(
+                child: Text(
+                  "Were sorry. There is some problem.",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline1!
+                      .copyWith(fontSize: 24),
+                ),
+              );
             }
           } else {
-            return Text("Loading Data...");
+            return Center(
+              child: Text(
+                "Loading Data...",
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .headline1!
+                    .copyWith(fontSize: 24),
+              ),
+            );
           }
         },
       ),
@@ -89,8 +120,8 @@ class _MyOrdersState extends State<MyOrders> {
                     topLeft: Radius.circular(12),
                     bottomLeft: Radius.circular(12)),
                 child: CachedNetworkImage(
-                  height: 110,
-                  width: 110,
+                  height: 140,
+                  width: 140,
                   progressIndicatorBuilder: (context, url, downloadProgress) =>
                       SizedBox(
                     height: 80,
@@ -104,40 +135,49 @@ class _MyOrdersState extends State<MyOrders> {
                 ),
               ),
               SizedBox(width: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    productDetails.get("name"),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline1
-                        ?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Text(productDetails.get("shopName"),
-                      style: Theme.of(context).textTheme.headline3?.copyWith(
-                            fontSize: 16,
-                          )),
-                  SizedBox(height: 8),
-                  Text(
-                      "₹" +
-                          productDetails.get("price") +
-                          " per " +
-                          productDetails.get("type"),
-                      style: Theme.of(context).textTheme.headline3?.copyWith(
-                            fontSize: 16,
-                          )),
-                  SizedBox(height: 8),
-                  Text(
-                      "Quantity: " +
-                          productDetails.get("quantity").toString() +
-                          " " +
-                          productDetails.get("type"),
-                      style: Theme.of(context).textTheme.headline3?.copyWith(
-                            fontSize: 16,
-                          )),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      productDetails.get("name"),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline1
+                          ?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 6),
+                    Text(productDetails.get("shopName"),
+                        style: Theme.of(context).textTheme.headline3?.copyWith(
+                              fontSize: 16,
+                            )),
+                    SizedBox(height: 4),
+                    Text(
+                        "₹" +
+                            productDetails.get("price") +
+                            " per " +
+                            productDetails.get("type"),
+                        style: Theme.of(context).textTheme.headline3?.copyWith(
+                              fontSize: 16,
+                            )),
+                    SizedBox(height: 4),
+                    Text(
+                        "Quantity: " +
+                            productDetails.get("quantity").toString() +
+                            " " +
+                            productDetails.get("type"),
+                        style: Theme.of(context).textTheme.headline3?.copyWith(
+                              fontSize: 16,
+                            )),
+                    SizedBox(height: 4),
+                    Text("Address: " + productDetails.get("userAddress"),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.headline3?.copyWith(
+                              fontSize: 15,
+                            )),
+                  ],
+                ),
               )
             ],
           )
