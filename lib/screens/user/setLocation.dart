@@ -70,63 +70,41 @@ class _SetLocationState extends State<SetLocation> {
               ),
             )
           ]),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Padding(
-            //   padding: EdgeInsets.symmetric(horizontal: 12),
-            //   child: AppThemeShared.textFormField(
-            //       context: context,
-            //       onFieldSubmitted: (searched) {
-            //         // getResult(searched);
-            //       },
-            //       hintText: 'Search your location'),
-            // ),
-            //  ,
-            Center(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.89,
-                child: GoogleMap(
-                  circles: {
-                    Circle(
-                        circleId: CircleId("10km area"),
-                        center: LatLng(latitude, longitude),
-                        radius: 10000,
-                        fillColor: Colors.blue.withOpacity(0.2),
-                        strokeColor: Colors.blue.withOpacity(0.2))
-                  },
-                  initialCameraPosition: CameraPosition(
-                      target: LatLng(latitude, longitude), zoom: 15),
-                  onMapCreated: (controller) =>
-                      googleMapController = controller,
-                  myLocationButtonEnabled: true,
-                  onTap: (tappedLocation) {
-                    setState(() {
-                      latitude = tappedLocation.latitude;
-                      longitude = tappedLocation.longitude;
-                      locationChanged = true;
-                    });
-                  },
-                  markers: {
-                    Marker(
-                      draggable: true,
-                      onDrag: (draggedLocation) {
-                        setState(() {
-                          latitude = draggedLocation.latitude;
-                          longitude = draggedLocation.longitude;
-                          locationChanged = true;
-                        });
-                      },
-                      markerId: MarkerId("Your Location"),
-                      position: LatLng(latitude, longitude),
-                    ),
-                  },
-                ),
-              ),
+      body: Center(
+        child: GoogleMap(
+          circles: {
+            Circle(
+                circleId: CircleId("10km area"),
+                center: LatLng(latitude, longitude),
+                radius: 10000,
+                fillColor: Colors.blue.withOpacity(0.2),
+                strokeColor: Colors.blue.withOpacity(0.2))
+          },
+          initialCameraPosition:
+              CameraPosition(target: LatLng(latitude, longitude), zoom: 15),
+          onMapCreated: (controller) => googleMapController = controller,
+          myLocationButtonEnabled: true,
+          onTap: (tappedLocation) {
+            setState(() {
+              latitude = tappedLocation.latitude;
+              longitude = tappedLocation.longitude;
+              locationChanged = true;
+            });
+          },
+          markers: {
+            Marker(
+              draggable: true,
+              onDrag: (draggedLocation) {
+                setState(() {
+                  latitude = draggedLocation.latitude;
+                  longitude = draggedLocation.longitude;
+                  locationChanged = true;
+                });
+              },
+              markerId: MarkerId("Your Location"),
+              position: LatLng(latitude, longitude),
             ),
-            SizedBox(height: 20)
-          ],
+          },
         ),
       ),
       // floatingActionButton: FloatingActionButton(

@@ -26,7 +26,7 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
   TextEditingController locationController = TextEditingController();
   TextEditingController shopAddressController = TextEditingController();
 
-   Future<SharedPreferences> _prefs = SharedPreferences.getInstance(); 
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
   void initState() {
@@ -96,6 +96,7 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
                         labelText: "Shop location",
                         hintText: 'Set shop location \*',
                         controller: locationController,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         readonly: true,
                         onTap: () {
                           showLocationDialog();
@@ -134,7 +135,6 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
                   buttonText: "Next",
                   onTap: (p0, p1, p2) {
                     final valid = becomeShopOwnerForm.currentState!.validate();
-                    Navigator.pushNamed(context, "/selectProductsCategories");
 
                     if (valid) {
                       addShop();
@@ -167,8 +167,6 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
               .collection("Users")
               .doc(FirebaseAuth.instance.currentUser!.uid)
               .update({"type": "Shop"}).whenComplete(() {
-                 
-
             Navigator.pushNamed(context, "/selectProductsCategories");
           });
         } on FirebaseException catch (e) {
@@ -211,20 +209,25 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
                 color: Colors.grey,
               ),
               SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Select location on map",
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline3!
-                        .copyWith(fontSize: 16),
-                  ),
-                  Icon(
-                    Icons.location_on_outlined,
-                  ),
-                ],
+              GestureDetector(
+                onTap: () {
+                  _navigateAndDisplaySelection(context);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Select location on map",
+                      style: Theme.of(context)
+                          .textTheme
+                          .headline3!
+                          .copyWith(fontSize: 16),
+                    ),
+                    Icon(
+                      Icons.location_on_outlined,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -279,5 +282,33 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
   setUserDataSP() async {
     final SharedPreferences prefs = await _prefs;
     prefs.setString("type", "Shop");
+  }
+
+  void _navigateAndDisplaySelection(BuildContext context) async {
+    // Navigator.push returns a Future that completes after calling
+    // Navigator.pop on the Selection Screen.
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      Fluttertoast.showToast(msg: "QGD needs to know your location");
+      LocationPermission permissionAsked = await Geolocator.requestPermission();
+      if (permissionAsked == LocationPermission.always ||
+          permissionAsked == LocationPermission.whileInUse) {
+        GeoFirePoint result =
+            await Navigator.pushNamed(context, "/setLocationShop")
+                as GeoFirePoint;
+        getAddressFromLatLong(result.latitude, result.longitude);
+
+        Navigator.pop(context);
+      }
+    } else if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
+      GeoFirePoint result =
+          await Navigator.pushNamed(context, "/setLocationShop")
+              as GeoFirePoint;
+      getAddressFromLatLong(result.latitude, result.longitude);
+
+      Navigator.pop(context);
+    }
   }
 }
