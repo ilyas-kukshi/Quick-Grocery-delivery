@@ -17,6 +17,7 @@ import 'package:quickgrocerydelivery/screens/shops/become_shop_owner.dart';
 import 'package:quickgrocerydelivery/screens/shops/myShop/manage_shop_orders.dart';
 import 'package:quickgrocerydelivery/screens/shops/myShop/manage_shop_products.dart';
 import 'package:quickgrocerydelivery/screens/shops/myShop/shop_dashboard.dart';
+import 'package:quickgrocerydelivery/screens/shops/myShop/shop_profile.dart';
 import 'package:quickgrocerydelivery/screens/shops/selectproducts/categories.dart';
 import 'package:quickgrocerydelivery/screens/shops/selectproducts/products.dart';
 import 'package:quickgrocerydelivery/screens/shops/setLocationShop.dart';
@@ -154,6 +155,9 @@ class MyApp extends StatelessWidget {
       case '/setLocationShop':
         return PageTransition(
             child: SetLocationShop(), type: PageTransitionType.leftToRight);
+      case '/myShopProfile':
+        return PageTransition(
+            child: ShopProfile(), type: PageTransitionType.leftToRight);
       default:
         return PageTransition(
             child: SignIn(), type: PageTransitionType.leftToRight);

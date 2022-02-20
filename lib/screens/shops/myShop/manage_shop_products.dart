@@ -427,7 +427,7 @@ class _ManageProductsState extends State<ManageProducts> {
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Container(
-              height: 300,
+              height: 290,
               decoration: BoxDecoration(
                   color: Colors.white, borderRadius: BorderRadius.circular(12)),
               child: Column(

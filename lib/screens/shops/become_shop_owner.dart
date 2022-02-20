@@ -122,7 +122,7 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
                         validator: Utility.shopAddressValidator,
                         autovalidateMode: AutovalidateMode.onUserInteraction,
                         // keyboardType: TextInputType.number,
-                        textInputAction: TextInputAction.next,
+                        textInputAction: TextInputAction.done,
                       )),
                 ),
                 SizedBox(height: 50),
@@ -268,7 +268,7 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
     }
   }
 
-  Future<void> getAddressFromLatLong(double latitude, double longitude) async {
+  Future<void> getAddressFromLatLong(double latitude, double longitude) async {  
     List<Placemark> placemarks =
         await placemarkFromCoordinates(latitude, longitude);
 
