@@ -259,6 +259,38 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                         ],
                       )
                     : Offstage(),
+
+                userType == "Customer"
+                    ? Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(
+                                  context, "/becomeDeliveryExecutive");
+                            },
+                            child: Row(
+                              children: [
+                                SizedBox(width: 10),
+                                Icon(
+                                  Icons.delivery_dining_outlined,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  "Become a delivery executive",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline1
+                                      ?.copyWith(fontSize: 18),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Divider(color: Colors.grey),
+                          SizedBox(height: 10),
+                        ],
+                      )
+                    : Offstage(),
                 GestureDetector(
                   onTap: () {
                     DialogShared.doubleButtonDialog(

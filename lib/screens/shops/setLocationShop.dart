@@ -61,7 +61,7 @@ class _SetLocationShopState extends State<SetLocationShop> {
           Circle(
               circleId: CircleId("10km area"),
               center: LatLng(latitude, longitude),
-              radius: 10000,
+              radius: 3000,
               fillColor: Colors.blue.withOpacity(0.2),
               strokeColor: Colors.blue.withOpacity(0.2))
         },

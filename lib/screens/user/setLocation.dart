@@ -76,7 +76,7 @@ class _SetLocationState extends State<SetLocation> {
             Circle(
                 circleId: CircleId("10km area"),
                 center: LatLng(latitude, longitude),
-                radius: 10000,
+                radius: 5000,
                 fillColor: Colors.blue.withOpacity(0.2),
                 strokeColor: Colors.blue.withOpacity(0.2))
           },

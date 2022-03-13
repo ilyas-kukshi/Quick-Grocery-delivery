@@ -6,6 +6,12 @@ class Utility {
     return null;
   }
 
+  static String? pincodeValidator(String? pincode){
+    if(pincode!.length != 6 && int.tryParse(pincode)!= null){
+       return 'Please enter a valid pincode number';
+    }
+    return null;
+  }
   static String? phoneNumberValidator(String? phoneNumber) {
     if (phoneNumber?.length != 10) {
       return 'Please enter a valid phone number';

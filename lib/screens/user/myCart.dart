@@ -6,6 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:quickgrocerydelivery/models/productModel.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
@@ -27,10 +30,22 @@ class _MyCartState extends State<MyCart> {
   String address = '';
   var _razorpay = Razorpay();
 
+  GeoPoint? savedLocation;
+  late DocumentSnapshot deliveryExecutiveDetails;
+
+  GlobalKey<FormState> addressFormKey = GlobalKey<FormState>();
+  TextEditingController addressP1 = TextEditingController();
+  TextEditingController addressP2 = TextEditingController();
+  TextEditingController locality = TextEditingController();
+  TextEditingController city = TextEditingController();
+  TextEditingController state = TextEditingController();
+  TextEditingController pincode = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     getMyCartProducts();
+    getSelectedLocation();
   }
 
   @override
@@ -327,9 +342,9 @@ class _MyCartState extends State<MyCart> {
                       width: 150,
                       borderRadius: 12,
                       color: AppThemeShared.buttonColor,
-                      buttonText: "Checkout",
+                      buttonText: "Order Address",
                       onTap: (p1, p2, p3) {
-                        addressDialog();
+                        addAddressBottomSheet();
                       })
                 ],
               ),
@@ -464,75 +479,6 @@ class _MyCartState extends State<MyCart> {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     DialogShared.loadingDialog(context, "Placing your order");
-    SharedPreferences userData = await _prefs;
-
-    myCartProducts.forEach((product) {
-      if (product.available!) {
-        FirebaseFirestore.instance
-            .collection("Shops")
-            .doc(product.shopId)
-            .collection("Orders")
-            .add({
-          "imageUrl": product.imageUrl,
-          "name": product.name,
-          "price": product.price,
-          "quantity": product.quantity,
-          "category": product.category,
-          "status": "Requested",
-          "timeStamp": FieldValue.serverTimestamp(),
-          "orderDate": DateTime.now().toString(),
-          "type": product.type,
-          "shopName": product.shopName,
-          "shopId": product.shopId,
-          "dbProductId": product.dbProductId,
-          "userName": userData.getString("name"),
-          "userPhnNumber": userData.getString("phoneNumber"),
-          "userId": userData.getString("userId"),
-          "userAddress": address,
-          "paymentId": response.paymentId
-        }).then((doc) {
-          FirebaseFirestore.instance
-              .collection("Users")
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .collection("Orders")
-              .doc(doc.id)
-              .set({
-            "imageUrl": product.imageUrl,
-            "name": product.name,
-            "price": product.price,
-            "quantity": product.quantity,
-            "category": product.category,
-            "status": "Requested",
-            "timeStamp": FieldValue.serverTimestamp(),
-            "orderDate": DateTime.now().toString(),
-            "type": product.type,
-            "shopName": product.shopName,
-            "shopId": product.shopId,
-            "dbProductId": product.dbProductId,
-            "userName": userData.getString("name"),
-            "userPhnNumber": userData.getString("phoneNumber"),
-            "userId": userData.getString("userId"),
-            "userAddress": address,
-            "paymentId": response.paymentId
-          }).whenComplete(() {
-            myCartProducts.forEach((element) {
-              FirebaseFirestore.instance
-                  .collection("Users")
-                  .doc(FirebaseAuth.instance.currentUser!.uid)
-                  .collection("My Cart")
-                  .doc(element.id)
-                  .delete();
-            });
-
-            myCartProducts.clear();
-            Navigator.pop(context);
-            Navigator.pop(context);
-            setState(() {});
-          });
-        });
-      }
-    });
-    Fluttertoast.showToast(msg: "Successful");
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
@@ -601,6 +547,287 @@ class _MyCartState extends State<MyCart> {
         );
       },
     );
+  }
+
+  void getSelectedLocation() async {
+    FirebaseFirestore.instance
+        .collection("Users")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get()
+        .then((doc) {
+      if (doc.data()?["location"] != null) {
+        savedLocation = doc.data()?["location"]["geopoint"];
+        getAddressFromLatLong(
+            savedLocation!.latitude, savedLocation!.longitude);
+      }
+    });
+  }
+
+  Future<void> getAddressFromLatLong(double latitude, double longitude) async {
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(latitude, longitude);
+
+    Placemark place = placemarks[0];
+    setState(() {
+      pincode.text = place.postalCode!;
+      locality.text = place.locality!;
+      city.text = place.subAdministrativeArea!;
+      state.text = place.administrativeArea!;
+    });
+    // print(Address);
+  }
+
+  addAddressBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Form(
+              key: addressFormKey,
+              child: Column(
+                children: [
+                  SizedBox(height: 30),
+                  Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: AppThemeShared.textFormField(
+                          context: context,
+                          // labelText: 'Enter name \*',
+                          hintText: 'Flat no, Building name, Colony',
+                          controller: addressP1,
+                          validator: Utility.nameValidator,
+                          textInputAction: TextInputAction.next,
+                          autovalidateMode: AutovalidateMode.onUserInteraction),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: AppThemeShared.textFormField(
+                          context: context,
+                          // labelText: 'Enter name \*',
+                          hintText: 'Street name, Landmark',
+                          controller: addressP2,
+                          validator: Utility.nameValidator,
+                          textInputAction: TextInputAction.done,
+                          autovalidateMode: AutovalidateMode.onUserInteraction),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: AppThemeShared.textFormField(
+                                context: context,
+                                // labelText: 'Enter name \*',
+                                hintText: 'addressP1loc',
+                                controller: locality,
+                                readonly: true,
+                                validator: Utility.nameValidator,
+                                textInputAction: TextInputAction.next,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: AppThemeShared.textFormField(
+                                context: context,
+                                // labelText: 'Enter name \*',
+                                hintText: 'City ',
+                                controller: city,
+                                validator: Utility.nameValidator,
+                                textInputAction: TextInputAction.next,
+                                readonly: true,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Center(
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.85,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: AppThemeShared.textFormField(
+                                context: context,
+                                // labelText: 'Enter name \*',
+                                hintText: 'State ',
+                                controller: state,
+                                readonly: true,
+                                validator: Utility.nameValidator,
+                                textInputAction: TextInputAction.next,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: AppThemeShared.textFormField(
+                                context: context,
+                                // labelText: 'Enter name \*',
+                                hintText: 'Pincode',
+                                controller: pincode,
+                                readonly: true,
+                                validator: Utility.pincodeValidator,
+                                textInputAction: TextInputAction.next,
+                                autovalidateMode:
+                                    AutovalidateMode.onUserInteraction),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  Center(
+                      child: AppThemeShared.argonButtonShared(
+                          context: context,
+                          height: 50,
+                          borderRadius: 12,
+                          width: MediaQuery.of(context).size.width * 0.85,
+                          color: AppThemeShared.buttonColor,
+                          buttonText: "Checkout",
+                          onTap: (startLoading, stopLoading, btnState) {
+                            var valid = addressFormKey.currentState!.validate();
+                            if (valid) {
+                              getDeliveryExecutiveInArea();
+                            }
+                          })),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  getDeliveryExecutiveInArea() {
+    bool deliveryExecutiveAvailable = false;
+
+    GeoFirePoint center = Geoflutterfire().point(
+        latitude: savedLocation!.latitude, longitude: savedLocation!.longitude);
+    Stream<List<DocumentSnapshot>> stream = Geoflutterfire()
+        .collection(
+            collectionRef:
+                FirebaseFirestore.instance.collection("DeliveryExecutives"))
+        .within(center: center, radius: 3, field: "location", strictMode: true);
+    stream.listen((List<DocumentSnapshot> documentList) {
+      // shops.clear();
+      for (var element in documentList) {
+        if (element.get("enabled") && !element.get("deliveryOngoing")) {
+          deliveryExecutiveAvailable = true;
+          deliveryExecutiveDetails = element;
+          break;
+        }
+      }
+
+      if (deliveryExecutiveAvailable) {
+        razorpayInitialization();
+      } else {
+        DialogShared.singleButtonDialog(
+            context,
+            "No delivery executive available in your area. Plese try again in a some time.",
+            "Okay", () {
+          Navigator.pop(context);
+        });
+      }
+      // shops = documentList;
+    });
+  }
+
+  placeOrder(
+      DocumentSnapshot deliveryDetails, PaymentSuccessResponse response) async {
+    SharedPreferences userData = await _prefs;
+
+    myCartProducts.forEach((product) {
+      if (product.available!) {
+        FirebaseFirestore.instance
+            .collection("Shops")
+            .doc(product.shopId)
+            .collection("Orders")
+            .add({
+          "imageUrl": product.imageUrl,
+          "name": product.name,
+          "price": product.price,
+          "quantity": product.quantity,
+          "category": product.category,
+          "status": "Requested",
+          "timeStamp": FieldValue.serverTimestamp(),
+          "orderDate": DateTime.now().toString(),
+          "type": product.type,
+          "shopName": product.shopName,
+          "shopId": product.shopId,
+          "dbProductId": product.dbProductId,
+          "userName": userData.getString("name"),
+          "userPhnNumber": userData.getString("phoneNumber"),
+          "userId": userData.getString("userId"),
+          "userAddress": address,
+          "userAddressLocation": savedLocation,
+          "paymentId": response.paymentId,
+          "deliveryExecutiveName": deliveryDetails.get("name"),
+          "deliveryExecutivePhoneNumber": deliveryDetails.get("phoneNumber"),
+        }).then((doc) {
+          FirebaseFirestore.instance
+              .collection("Users")
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .collection("Orders")
+              .doc(doc.id)
+              .set({
+            "imageUrl": product.imageUrl,
+            "name": product.name,
+            "price": product.price,
+            "quantity": product.quantity,
+            "category": product.category,
+            "status": "Requested",
+            "timeStamp": FieldValue.serverTimestamp(),
+            "orderDate": DateTime.now().toString(),
+            "type": product.type,
+            "shopName": product.shopName,
+            "shopId": product.shopId,
+            "dbProductId": product.dbProductId,
+            "userName": userData.getString("name"),
+            "userPhnNumber": userData.getString("phoneNumber"),
+            "userId": userData.getString("userId"),
+            "userAddress": address,
+            "userAddressLocation": savedLocation,
+            "paymentId": response.paymentId,
+            "deliveryExecutiveId": deliveryDetails.id,
+            "deliveryExecutiveName": deliveryDetails.get("name"),
+            "deliveryExecutivePhoneNumber": deliveryDetails.get("phoneNumber"),
+          }).whenComplete(() {
+            myCartProducts.forEach((element) {
+              FirebaseFirestore.instance
+                  .collection("Users")
+                  .doc(FirebaseAuth.instance.currentUser!.uid)
+                  .collection("My Cart")
+                  .doc(element.id)
+                  .delete();
+            });
+
+            myCartProducts.clear();
+            Navigator.pop(context);
+            Navigator.pop(context);
+            setState(() {});
+          });
+        });
+      }
+    });
+    Fluttertoast.showToast(msg: "Successful");
   }
 
   @override

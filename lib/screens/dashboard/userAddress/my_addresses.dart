@@ -1,5 +1,8 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:flutter/material.dart';
+// import 'package:geocoding/geocoding.dart';
+// import 'package:geolocator/geolocator.dart';
 // import 'package:quickgrocerydelivery/models/addressModel.dart';
 // import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 // import 'package:quickgrocerydelivery/shared/utility.dart';
@@ -13,170 +16,108 @@
 // }
 
 // class _MyAdressesState extends State<MyAdresses> {
+//   List<DocumentSnapshot> myAddresses = [];
 //   AddressModel addressModel = AddressModel("", "", "", "", "", '');
+
+
+  
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     getSelectedLocation();
+//   }
+
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
-//       appBar: AppThemeShared.appBar(
-//         title: "Address",
-//         context: context,
-//         leading: GestureDetector(
-//           onTap: () => Navigator.pop(context),
-//           child: Icon(
-//             Icons.chevron_left,
-//             size: 30,
-//           ),
-//         ),
-//         actions: [
-//           GestureDetector(
-//             onTap: () {
-//               addressModel.city = "Mumbai";
-//               addAddressBottomSheet(addressModel);
-//             },
-//             child: Padding(
-//               padding: const EdgeInsets.only(right: 12),
-//               child: Icon(
-//                 Icons.add_outlined,
-//                 size: 30,
-//               ),
+//         appBar: AppThemeShared.appBar(
+//           title: "Address",
+//           context: context,
+//           leading: GestureDetector(
+//             onTap: () => Navigator.pop(context),
+//             child: Icon(
+//               Icons.chevron_left,
+//               size: 30,
 //             ),
-//           )
-//         ],
-//       ),
-//     );
+//           ),
+//           actions: [
+//             GestureDetector(
+//               onTap: () {
+//                 addressModel.city = "Mumbai";
+//                 addAddressBottomSheet(addressModel);
+//               },
+//               child: Padding(
+//                 padding: const EdgeInsets.only(right: 12),
+//                 child: Icon(
+//                   Icons.add_outlined,
+//                   size: 30,
+//                 ),
+//               ),
+//             )
+//           ],
+//         ),
+//         body: myAddresses.length > 0
+//             ? ListView.builder(
+//                 itemCount: myAddresses.length,
+//                 itemBuilder: (context, index) {
+//                   return SizedBox(
+//                     width: MediaQuery.of(context).size.width * 0.85,
+//                   );
+//                 },
+//               )
+//             : Column(
+//                 mainAxisAlignment: MainAxisAlignment.center,
+//                 children: [
+//                   Text(
+//                     'No address available',
+//                     style: TextStyle(
+//                         color: Colors.black,
+//                         fontFamily: "Times New Roman",
+//                         fontSize: 20),
+//                   ),
+//                   SizedBox(height: 8),
+//                   Center(
+//                     child: ElevatedButton(
+//                       style: ElevatedButton.styleFrom(
+//                           primary: Colors.white,
+//                           side: BorderSide(
+//                               color: AppThemeShared.buttonColor, width: 2),
+//                           minimumSize: Size(
+//                               MediaQuery.of(context).size.width * 0.85, 50)),
+//                       onPressed: () => addAddressBottomSheet(addressModel),
+//                       child: Text(
+//                         "Add Address",
+//                         style: TextStyle(
+//                             color: Colors.black,
+//                             fontFamily: "Times New Roman",
+//                             fontSize: 20),
+//                       ),
+//                     ),
+//                   ),
+//                 ],
+//               ));
 //   }
 
-//   addAddressBottomSheet(AddressModel addressModel) {
-//     showModalBottomSheet(
-//       context: context,
-//       shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.only(
-//               topLeft: Radius.circular(20), topRight: Radius.circular(20))),
-//       builder: (context) {
-//         return StatefulBuilder(
-//           builder: (BuildContext context, StateSetter setState) {
-//             return Column(
-//               children: [
-//                 SizedBox(height: 30),
-//                 Center(
-//                   child: SizedBox(
-//                     width: MediaQuery.of(context).size.width * 0.85,
-//                     child: AppThemeShared.textFormField(
-//                         context: context,
-//                         // labelText: 'Enter name \*',
-//                         hintText: 'Flat no, Building name, Colony',
-//                         // controller: nameController,
-//                         validator: Utility.nameValidator,
-//                         textInputAction: TextInputAction.next,
-//                         autovalidateMode: AutovalidateMode.onUserInteraction),
-//                   ),
-//                 ),
-//                 SizedBox(height: 10),
-//                 Center(
-//                   child: SizedBox(
-//                     width: MediaQuery.of(context).size.width * 0.85,
-//                     child: AppThemeShared.textFormField(
-//                         context: context,
-//                         // labelText: 'Enter name \*',
-//                         hintText: 'Street name, Landmark',
-//                         // controller: nameController,
-//                         validator: Utility.nameValidator,
-//                         textInputAction: TextInputAction.next,
-//                         autovalidateMode: AutovalidateMode.onUserInteraction),
-//                   ),
-//                 ),
-//                 SizedBox(height: 10),
-//                 Center(
-//                   child: SizedBox(
-//                     width: MediaQuery.of(context).size.width * 0.85,
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         SizedBox(
-//                           width: MediaQuery.of(context).size.width * 0.4,
-//                           child: AppThemeShared.textFormField(
-//                               context: context,
-//                               // labelText: 'Enter name \*',
-//                               hintText: 'Locality',
-//                               // controller: nameController,
-//                               validator: Utility.nameValidator,
-//                               textInputAction: TextInputAction.next,
-//                               autovalidateMode:
-//                                   AutovalidateMode.onUserInteraction),
-//                         ),
-//                         SizedBox(
-//                           width: MediaQuery.of(context).size.width * 0.4,
-//                           child: AppThemeShared.textFormField(
-//                               context: context,
-//                               // labelText: 'Enter name \*',
-//                               hintText: 'City ',
-//                               // controller: nameController,
-//                               validator: Utility.nameValidator,
-//                               textInputAction: TextInputAction.next,
-//                               autovalidateMode:
-//                                   AutovalidateMode.onUserInteraction),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//                 SizedBox(height: 10),
-//                 Center(
-//                   child: SizedBox(
-//                     width: MediaQuery.of(context).size.width * 0.85,
-//                     child: Row(
-//                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                       children: [
-//                         SizedBox(
-//                           width: MediaQuery.of(context).size.width * 0.4,
-//                           child: AppThemeShared.textFormField(
-//                               context: context,
-//                               // labelText: 'Enter name \*',
-//                               hintText: 'State ',
-//                               // controller: nameController,
-//                               validator: Utility.nameValidator,
-//                               textInputAction: TextInputAction.next,
-//                               autovalidateMode:
-//                                   AutovalidateMode.onUserInteraction),
-//                         ),
-//                         SizedBox(
-//                           width: MediaQuery.of(context).size.width * 0.4,
-//                           child: AppThemeShared.textFormField(
-//                               context: context,
-//                               // labelText: 'Enter name \*',
-//                               hintText: 'Pincode',
-//                               // controller: nameController,
-//                               validator: Utility.nameValidator,
-//                               textInputAction: TextInputAction.next,
-//                               autovalidateMode:
-//                                   AutovalidateMode.onUserInteraction),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//                 SizedBox(height: 30),
-//                 Center(
-//                     child: AppThemeShared.argonButtonShared(
-//                         context: context,
-//                         height: 50,
-//                         borderRadius: 12,
-//                         width: MediaQuery.of(context).size.width * 0.85,
-//                         color: AppThemeShared.buttonColor,
-//                         buttonText: "Save Address",
-//                         onTap: (startLoading, stopLoading, btnState) {})),
-//               ],
-//             );
-//           },
-//         );
-//       },
-//     );
-//   }
+ 
 
 //   saveAddress() async {
 //     SharedPreferences userData = await SharedPreferences.getInstance();
 //     FirebaseFirestore.instance
 //         .collection("Users")
 //         .doc(userData.getString("userId"));
+//   }
+
+//   getAddress() async {
+//     await FirebaseFirestore.instance
+//         .collection("Users")
+//         .doc(FirebaseAuth.instance.currentUser!.uid)
+//         .collection("My Addresses")
+//         .get()
+//         .then((value) {
+//       value.docs.forEach((element) {
+//         myAddresses.add(element);
+//       });
+//     });
 //   }
 // }
