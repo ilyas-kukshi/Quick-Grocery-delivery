@@ -66,27 +66,57 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
                 SizedBox(height: 20),
                 Divider(color: Colors.grey),
                 SizedBox(height: 10),
-                // GestureDetector(
-                //   child: Row(
-                //     children: [
-                //       SizedBox(width: 10),
-                //       Icon(
-                //         Icons.home_outlined,
-                //       ),
-                //       SizedBox(width: 10),
-                //       Text(
-                //         "Home",
-                //         style: Theme.of(context)
-                //             .textTheme
-                //             .headline1
-                //             ?.copyWith(fontSize: 18),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                // SizedBox(height: 10),
-                // Divider(color: Colors.grey),
-                // SizedBox(height: 10),
+                userType == "DeliveryExecutive"
+                    ? Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () =>
+                                Navigator.pushNamed(context, '/DEDashboard'),
+                            child: Row(
+                              children: [
+                                SizedBox(width: 10),
+                                Icon(
+                                  Icons.home_outlined,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  "My Deliveries",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline1
+                                      ?.copyWith(fontSize: 18),
+                                ),
+                                Spacer(),
+                                FutureBuilder(
+                                  future: deliveryExecutiveStatus(),
+                                  builder: (BuildContext context,
+                                      AsyncSnapshot snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.done) {
+                                      if (snapshot.hasData) {
+                                        return FlutterSwitch(
+                                          value: snapshot.data,
+                                          onToggle: (value) {
+                                            changeDeliveryExecutiveStatus(
+                                                value);
+                                          },
+                                        );
+                                      } else
+                                        return Container();
+                                    } else
+                                      return Container();
+                                  },
+                                ),
+                                SizedBox(width: 10),
+                              ],
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Divider(color: Colors.grey),
+                          SizedBox(height: 10),
+                        ],
+                      )
+                    : Offstage(),
                 userType == "Shop"
                     ? Column(
                         children: [
@@ -371,9 +401,30 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
     return enabled;
   }
 
+  Future<bool>? deliveryExecutiveStatus() async {
+    bool enabled = false;
+    await FirebaseFirestore.instance
+        .collection("DeliveryExecutives")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((value) {
+      enabled = value.get("enabled");
+    });
+    return enabled;
+  }
+
   void changeShopStatus(bool value) async {
     await FirebaseFirestore.instance
         .collection("Shops")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      "enabled": value,
+    });
+  }
+
+  void changeDeliveryExecutiveStatus(bool value) async {
+    await FirebaseFirestore.instance
+        .collection("DeliveryExecutives")
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .update({
       "enabled": value,

@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:quickgrocerydelivery/models/categoryModel.dart';
 import 'package:quickgrocerydelivery/models/productModel.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
+import 'package:quickgrocerydelivery/shared/dialogs.dart';
 
 // ignore: must_be_immutable
 class ProductByCategory extends StatefulWidget {
@@ -19,6 +20,8 @@ class ProductByCategory extends StatefulWidget {
 }
 
 class _ProductByCategoryState extends State<ProductByCategory> {
+  String shopIdInShop = 'No Products';
+
   List<UserProductModel> allProducts = [];
   List<String> myCartProductIds = [];
   @override
@@ -186,28 +189,70 @@ class _ProductByCategoryState extends State<ProductByCategory> {
   }
 
   addProductToCart(UserProductModel userProductModel, int index) {
-    FirebaseFirestore.instance
-        .collection("Users")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .collection("My Cart")
-        .doc(userProductModel.id)
-        .set({
-      "imageUrl": userProductModel.imageUrl,
-      "name": userProductModel.name,
-      "category": userProductModel.category,
-      "categoryId": widget.categoryModel!.id,
-      "price": userProductModel.price,
-      "type": userProductModel.type,
-      "shopName": userProductModel.shopName,
-      "shopId": userProductModel.shopId,
-      "dbProductId": userProductModel.dbProductId,
-      "quantity": 1,
-    }).whenComplete(() {
-      allProducts[index].addedToCart = true;
-      setState(() {});
+    if (userProductModel.shopId == shopIdInShop ||
+        shopIdInShop == 'No Products') {
+      FirebaseFirestore.instance
+          .collection("Users")
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("My Cart")
+          .doc(userProductModel.id)
+          .set({
+        "imageUrl": userProductModel.imageUrl,
+        "name": userProductModel.name,
+        "category": userProductModel.category,
+        "categoryId": widget.categoryModel!.id,
+        "price": userProductModel.price,
+        "type": userProductModel.type,
+        "shopName": userProductModel.shopName,
+        "shopId": userProductModel.shopId,
+        "dbProductId": userProductModel.dbProductId,
+        "quantity": 1,
+      }).whenComplete(() {
+        allProducts[index].addedToCart = true;
+        setState(() {});
 
-      Fluttertoast.showToast(msg: "Product Added to Cart");
-    });
+        Fluttertoast.showToast(msg: "Product Added to Cart");
+      });
+    } else {
+      DialogShared.doubleButtonDialog(context,
+          "You already have products in cart of another shop. do you want to remove those products?",
+          ()  {
+        myCartProductIds.forEach((element) {
+          FirebaseFirestore.instance
+              .collection("Users")
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .collection("My Cart")
+              .doc(element)
+              .delete()
+              .whenComplete(() =>  FirebaseFirestore.instance
+                      .collection("Users")
+                      .doc(FirebaseAuth.instance.currentUser!.uid)
+                      .collection("My Cart")
+                      .doc(userProductModel.id)
+                      .set({
+                    "imageUrl": userProductModel.imageUrl,
+                    "name": userProductModel.name,
+                    "category": userProductModel.category,
+                    "categoryId": widget.categoryModel!.id,
+                    "price": userProductModel.price,
+                    "type": userProductModel.type,
+                    "shopName": userProductModel.shopName,
+                    "shopId": userProductModel.shopId,
+                    "dbProductId": userProductModel.dbProductId,
+                    "quantity": 1,
+                  }).whenComplete(() {
+                    allProducts[index].addedToCart = true;
+                    shopIdInShop = userProductModel.shopId;
+                    setState(() {});
+
+                    Fluttertoast.showToast(msg: "Product Added to Cart");
+                  }));
+        });
+        Navigator.pop(context);
+      }, () {
+        Navigator.pop(context);
+      });
+    }
   }
 
   getMyCartData() async {
@@ -218,6 +263,7 @@ class _ProductByCategoryState extends State<ProductByCategory> {
         .get()
         .then((value) {
       if (value.docs.length > 0) {
+        shopIdInShop = value.docs[0].get("shopId");
         value.docs.forEach((element) {
           myCartProductIds.add(element.id);
         });
