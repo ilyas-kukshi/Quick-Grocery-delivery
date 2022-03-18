@@ -8,7 +8,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
-import 'package:http/http.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:quickgrocerydelivery/models/productModel.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
@@ -27,9 +27,7 @@ class _MyCartState extends State<MyCart> {
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   List<ProductModel> myCartProducts = [];
   int totalPrice = 0;
-  String userAddress = '';
-  String userName = '';
-  String userPhoneNumber = '';
+  String address = '';
   var _razorpay = Razorpay();
 
   GeoPoint? savedLocation;
@@ -48,7 +46,6 @@ class _MyCartState extends State<MyCart> {
     super.initState();
     getMyCartProducts();
     getSelectedLocation();
-    getUserInfo();
   }
 
   @override
@@ -481,7 +478,6 @@ class _MyCartState extends State<MyCart> {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
-    placeOrder(response);
     DialogShared.loadingDialog(context, "Placing your order");
   }
 
@@ -496,6 +492,61 @@ class _MyCartState extends State<MyCart> {
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     // Do something when an external wallet was selected
+  }
+
+  addressDialog() {
+    TextEditingController addressController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            height: 260,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              children: [
+                Padding(
+                    padding: EdgeInsets.all(12),
+                    child: AppThemeShared.textFormField(
+                        context: context,
+                        hintText: 'Please enter your full address',
+                        maxLines: 5,
+                        controller: addressController,
+                        validator: Utility.addressValidator,
+                        textInputAction: TextInputAction.done)),
+                Padding(
+                  padding: EdgeInsets.all(12),
+                  child: AppThemeShared.argonButtonShared(
+                      context: context,
+                      height: 40,
+                      width: MediaQuery.of(context).size.width,
+                      borderRadius: 12,
+                      color: AppThemeShared.buttonColor,
+                      buttonText: "Checkout",
+                      onTap: (p0, p1, p2) {
+                        if (addressController.text.isNotEmpty) {
+                          if (totalPrice > 0) {
+                            address = addressController.text;
+                            razorpayInitialization();
+                          } else
+                            Fluttertoast.showToast(
+                                msg: "Please do some shopping first");
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: "Please enter your address");
+                        }
+                      }),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void getSelectedLocation() async {
@@ -699,13 +750,12 @@ class _MyCartState extends State<MyCart> {
     });
   }
 
-  placeOrder(PaymentSuccessResponse response) async {
+  placeOrder(
+      DocumentSnapshot deliveryDetails, PaymentSuccessResponse response) async {
     SharedPreferences userData = await _prefs;
-    userAddress = addressP1.text + ', ' + addressP2.text;
+
     myCartProducts.forEach((product) {
       if (product.available!) {
-
-        //adding to shop
         FirebaseFirestore.instance
             .collection("Shops")
             .doc(product.shopId)
@@ -726,16 +776,12 @@ class _MyCartState extends State<MyCart> {
           "userName": userData.getString("name"),
           "userPhnNumber": userData.getString("phoneNumber"),
           "userId": userData.getString("userId"),
-          "userAddress": userAddress,
+          "userAddress": address,
           "userAddressLocation": savedLocation,
           "paymentId": response.paymentId,
-          "deliveryExecutiveId": deliveryExecutiveDetails.id,
-          "deliveryExecutiveName": deliveryExecutiveDetails.get("name"),
-          "deliveryExecutivePhoneNumber":
-              deliveryExecutiveDetails.get("phoneNumber"),
+          "deliveryExecutiveName": deliveryDetails.get("name"),
+          "deliveryExecutivePhoneNumber": deliveryDetails.get("phoneNumber"),
         }).then((doc) {
-
-          //adding to user
           FirebaseFirestore.instance
               .collection("Users")
               .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -757,13 +803,12 @@ class _MyCartState extends State<MyCart> {
             "userName": userData.getString("name"),
             "userPhnNumber": userData.getString("phoneNumber"),
             "userId": userData.getString("userId"),
-            "userAddress": userAddress,
+            "userAddress": address,
             "userAddressLocation": savedLocation,
             "paymentId": response.paymentId,
-            "deliveryExecutiveId": deliveryExecutiveDetails.id,
-            "deliveryExecutiveName": deliveryExecutiveDetails.get("name"),
-            "deliveryExecutivePhoneNumber":
-                deliveryExecutiveDetails.get("phoneNumber"),
+            "deliveryExecutiveId": deliveryDetails.id,
+            "deliveryExecutiveName": deliveryDetails.get("name"),
+            "deliveryExecutivePhoneNumber": deliveryDetails.get("phoneNumber"),
           }).whenComplete(() {
             myCartProducts.forEach((element) {
               FirebaseFirestore.instance
@@ -773,54 +818,16 @@ class _MyCartState extends State<MyCart> {
                   .doc(element.id)
                   .delete();
             });
+
+            myCartProducts.clear();
+            Navigator.pop(context);
+            Navigator.pop(context);
+            setState(() {});
           });
         });
       }
     });
-
-    //adding to delivery executive
-    late DocumentSnapshot value;
-    FirebaseFirestore.instance
-        .collection("Shops")
-        .doc(myCartProducts[0].shopId)
-        .get()
-        .then((doc) => value = doc)
-        .whenComplete(() {
-      FirebaseFirestore.instance
-          .collection("DeliveryExecutives")
-          .doc(deliveryExecutiveDetails.id)
-          .collection("Deliveries")
-          .add({
-        "shopId": myCartProducts[0].shopId,
-        "userId": FirebaseAuth.instance.currentUser!.uid,
-        "timeStamp": FieldValue.serverTimestamp(),
-        "userName": userName,
-        "userPhoneNumber": userPhoneNumber,
-        "userAddress": userAddress,
-        "userAddressLocation": savedLocation,
-        "shopAddress": value.get("address"),
-        "shopLocation": value.get("location"),
-        "shopPhoneNumber": value.get("phoneNumber"),
-        "shopName": value.get("name"),
-        "ongoing" : true,
-      });
-
-      myCartProducts.clear();
-      Navigator.pop(context);
-      Navigator.pop(context);
-      setState(() {});
-    });
-
     Fluttertoast.showToast(msg: "Successful");
-  }
-
-  Future<void> getUserInfo() async {
-    final SharedPreferences prefs = await _prefs;
-
-    setState(() {
-      userName = prefs.getString('name')!;
-      userPhoneNumber = prefs.getString("phoneNumber")!;
-    });
   }
 
   @override
