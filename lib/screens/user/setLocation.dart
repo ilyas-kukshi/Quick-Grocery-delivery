@@ -26,6 +26,8 @@ class _SetLocationState extends State<SetLocation> {
   GoogleMapController? googleMapController;
   List<MapSearchModel>? searchResults;
 
+
+
   @override
   void initState() {
     super.initState();

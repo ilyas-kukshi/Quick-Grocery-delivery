@@ -117,7 +117,12 @@ class _DEDashboardState extends State<DEDashboard> {
                                             .headline1!
                                             .copyWith(fontSize: 16)),
                                     GestureDetector(
-                                      onTap: () {},
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                            context, "/DeToShopDirections",
+                                            arguments:
+                                                snapshot.data.docs[index]);
+                                      },
                                       child: Text('Show Directions',
                                           style: Theme.of(context)
                                               .textTheme
@@ -173,7 +178,12 @@ class _DEDashboardState extends State<DEDashboard> {
                                             .headline1!
                                             .copyWith(fontSize: 16)),
                                     GestureDetector(
-                                      onTap: () {},
+                                      onTap: () {
+                                        Navigator.pushNamed(
+                                            context, '/ShopToUserDirections',
+                                            arguments:
+                                                snapshot.data.docs[index]);
+                                      },
                                       child: Text('Show Directions',
                                           style: Theme.of(context)
                                               .textTheme
