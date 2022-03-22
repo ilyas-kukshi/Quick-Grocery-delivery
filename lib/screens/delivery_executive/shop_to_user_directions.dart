@@ -22,7 +22,7 @@ class _ShopToUserDirectionState extends State<ShopToUserDirection> {
   double currentLongitude = 0.0;
 
   GoogleMapController? googleMapController;
-  late CameraPosition cameraPosition;
+  CameraPosition cameraPosition = CameraPosition(target: LatLng(0.0, 0.0));
 
   Set<Marker> markers = Set<Marker>();
   Set<Polyline> polyLines = Set<Polyline>();
@@ -50,9 +50,15 @@ class _ShopToUserDirectionState extends State<ShopToUserDirection> {
   void setInitialLocation() async {
     currentPosition = await location.getLocation();
 
+    currentLatitude = currentPosition!.latitude!;
+    currentLongitude = currentPosition!.longitude!;
+
     cameraPosition = CameraPosition(
-        target: LatLng(currentPosition!.latitude!, currentPosition!.longitude!),
-        zoom: 15);
+        target: LatLng(currentLatitude, currentLongitude), zoom: 15);
+    googleMapController?.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+            target: LatLng(currentLatitude, currentLongitude), zoom: 15)));
+
     setState(() {});
 
     var forShopLocation = widget.deliveryDetails["shopLocation"];
@@ -113,10 +119,7 @@ class _ShopToUserDirectionState extends State<ShopToUserDirection> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-            target:
-                LatLng(currentPosition!.latitude!, currentPosition!.longitude!),
-            zoom: 15),
+        initialCameraPosition: cameraPosition,
         onMapCreated: (controller) => googleMapController = controller,
         myLocationButtonEnabled: true,
         markers: markers,

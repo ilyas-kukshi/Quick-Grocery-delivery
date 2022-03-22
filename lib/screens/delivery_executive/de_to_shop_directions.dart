@@ -23,7 +23,7 @@ class _DeToShopDirectionsState extends State<DeToShopDirections> {
   double currentLongitude = 0.0;
 
   GoogleMapController? googleMapController;
-  late CameraPosition cameraPosition;
+  CameraPosition cameraPosition = CameraPosition(target: LatLng(0.0, 0.0));
 
   Set<Marker> markers = Set<Marker>();
   Set<Polyline> polyLines = Set<Polyline>();
@@ -50,9 +50,15 @@ class _DeToShopDirectionsState extends State<DeToShopDirections> {
   void setInitialLocation() async {
     currentPosition = await location.getLocation();
 
+    currentLatitude = currentPosition!.latitude!;
+    currentLongitude = currentPosition!.longitude!;
+
     cameraPosition = CameraPosition(
-        target: LatLng(currentPosition!.latitude!, currentPosition!.longitude!),
-        zoom: 15);
+        target: LatLng(currentLatitude, currentLongitude), zoom: 15);
+    googleMapController?.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+            target: LatLng(currentLatitude, currentLongitude), zoom: 15)));
+
     setState(() {});
 
     var doc = widget.deliveryDetails["shopLocation"];
@@ -66,10 +72,9 @@ class _DeToShopDirectionsState extends State<DeToShopDirections> {
   }
 
   void showLocationPins() {
-    var source = LatLng(
-        currentPosition!.latitude ?? 0.0, currentPosition!.longitude ?? 0.0);
+    var source = LatLng(currentLatitude, currentLongitude);
     var destination =
-        LatLng(destinationPosition!.latitude!, currentPosition!.longitude!);
+        LatLng(destinationPosition!.latitude!, destinationPosition!.longitude!);
 
     markers.add(Marker(markerId: MarkerId('source'), position: source));
 
@@ -106,10 +111,7 @@ class _DeToShopDirectionsState extends State<DeToShopDirections> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-            target:
-                LatLng(currentPosition!.latitude!, currentPosition!.longitude!),
-            zoom: 15),
+        initialCameraPosition: cameraPosition,
         onMapCreated: (controller) => googleMapController = controller,
         myLocationButtonEnabled: true,
         markers: markers,
