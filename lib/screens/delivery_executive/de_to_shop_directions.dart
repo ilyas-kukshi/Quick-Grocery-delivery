@@ -86,7 +86,7 @@ class _DeToShopDirectionsState extends State<DeToShopDirections> {
 
   void setPoylinesInMap() async {
     var result = await polylinePoints.getRouteBetweenCoordinates(
-        Constants.mapApiKey,
+        Constants.url + Constants.onlyMapApiKey,
         PointLatLng(
             currentPosition!.latitude ?? 0.0, currentPosition!.latitude ?? 0.0),
         PointLatLng(
