@@ -8,6 +8,7 @@ import 'package:location/location.dart' as locationPackage;
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/constants.dart';
 
+// ignore: must_be_immutable
 class ShopToUserDirection extends StatefulWidget {
   DocumentSnapshot deliveryDetails;
   ShopToUserDirection({Key? key, required this.deliveryDetails})

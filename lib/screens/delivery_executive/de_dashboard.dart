@@ -1,9 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
-import 'package:quickgrocerydelivery/shared/dialogs.dart';
 
 class DEDashboard extends StatefulWidget {
   const DEDashboard({Key? key}) : super(key: key);
@@ -14,18 +13,58 @@ class DEDashboard extends StatefulWidget {
 
 class _DEDashboardState extends State<DEDashboard> {
   List<DocumentSnapshot> deliveryData = [];
+  GeoPoint? savedLocation;
+
+  String userLocation = "Your Location";
 
   @override
   void initState() {
     getDeliveryData();
+    getSelectedLocation();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          AppThemeShared.appBar(title: "Delivery Executive", context: context),
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(Icons.arrow_back_ios, color: Colors.white)),
+        centerTitle: true,
+        title: Column(
+          // crossAxisAlignment: CrossAxisAlignment.start
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Icon(
+                    Icons.local_shipping_outlined,
+                    color: Colors.white,
+                  ),
+                  Text(userLocation,
+                      style: TextStyle(
+                        color: Colors.white,
+                      )),
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, "/setDELocation",
+                            arguments: GeoPoint(savedLocation!.latitude,
+                                savedLocation!.longitude));
+                      },
+                      child: Icon(Icons.edit, color: Colors.white)),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
       body: StreamBuilder(
           stream: FirebaseFirestore.instance
               .collection('DeliveryExecutives')
@@ -203,8 +242,12 @@ class _DEDashboardState extends State<DEDashboard> {
                     );
                   },
                 );
+              } else if (snapshot.data.size <= 0) {
+                return Center(child: Text('No Delivery Data Available'));
+              } else if (snapshot.hasError) {
+                return Text(snapshot.error.toString());
               } else {
-                return Text('Error');
+                return Text('Unidentified Error');
               }
             } else {
               return Center(child: Text('Loading Data'));
@@ -316,5 +359,30 @@ class _DEDashboardState extends State<DEDashboard> {
         SizedBox(height: 8),
       ],
     );
+  }
+
+  void getSelectedLocation() async {
+    FirebaseFirestore.instance
+        .collection("DeliveryExecutives")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get()
+        .then((doc) {
+      if (doc.data()?["location"] != null) {
+        savedLocation = doc.data()?["location"]["geopoint"];
+        getAddressFromLatLong(
+            savedLocation!.latitude, savedLocation!.longitude);
+      }
+    });
+  }
+
+  Future<void> getAddressFromLatLong(double latitude, double longitude) async {
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(latitude, longitude);
+
+    Placemark place = placemarks[0];
+    setState(() {
+      userLocation = '${place.subLocality}, ${place.locality}';
+    });
+    // print(Address);
   }
 }

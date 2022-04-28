@@ -26,6 +26,7 @@ class _BecomeDeliveryExecutiveState extends State<BecomeDeliveryExecutive> {
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController locationController = TextEditingController();
 
+  // ignore: unused_field
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
   @override
@@ -148,7 +149,8 @@ class _BecomeDeliveryExecutiveState extends State<BecomeDeliveryExecutive> {
         "name": executiveNameController.text,
         "phoneNumber": phoneNumberController.text,
         "location": location.data,
-        "enabled": true
+        "enabled": true,
+        "deliveryOngoing": false
       }).whenComplete(() {
         try {
           FirebaseFirestore.instance
@@ -235,8 +237,8 @@ class _BecomeDeliveryExecutiveState extends State<BecomeDeliveryExecutive> {
         permission == LocationPermission.deniedForever) {
       Fluttertoast.showToast(msg: "QGD needs to know your location");
       LocationPermission permissionAsked = await Geolocator.requestPermission();
-      if (permissionAsked == LocationPermission.always ||
-          permissionAsked == LocationPermission.whileInUse) {
+      if (permissionAsked == LocationPermission.denied ||
+          permissionAsked == LocationPermission.deniedForever) {
         getCurrentLocation();
       }
     } else if (permission == LocationPermission.always ||
@@ -294,6 +296,4 @@ class _BecomeDeliveryExecutiveState extends State<BecomeDeliveryExecutive> {
       Navigator.pop(context);
     }
   }
-
-  
 }

@@ -15,9 +15,11 @@ import 'package:quickgrocerydelivery/screens/dashboard/shopDetail/shopDetailed.d
 import 'package:quickgrocerydelivery/screens/delivery_executive/become_delivery_executive.dart';
 import 'package:quickgrocerydelivery/screens/delivery_executive/de_dashboard.dart';
 import 'package:quickgrocerydelivery/screens/delivery_executive/de_to_shop_directions.dart';
+import 'package:quickgrocerydelivery/screens/delivery_executive/set_de_location.dart';
 import 'package:quickgrocerydelivery/screens/delivery_executive/shop_to_user_directions.dart';
 import 'package:quickgrocerydelivery/screens/onboarding/guidelines.dart';
 import 'package:quickgrocerydelivery/screens/shops/become_shop_owner.dart';
+import 'package:quickgrocerydelivery/screens/shops/myShop/change_shop_location.dart';
 import 'package:quickgrocerydelivery/screens/shops/myShop/manage_shop_orders.dart';
 import 'package:quickgrocerydelivery/screens/shops/myShop/manage_shop_products.dart';
 import 'package:quickgrocerydelivery/screens/shops/myShop/shop_dashboard.dart';
@@ -142,6 +144,13 @@ class MyApp extends StatelessWidget {
       case '/shopDashboard':
         return PageTransition(
             child: ShopDashboard(), type: PageTransitionType.leftToRight);
+      case '/changeShopLocation':
+        return PageTransition(
+            child: ChangeShopLocation(
+              initialPosition: settings.arguments as GeoPoint,
+            ),
+            type: PageTransitionType.leftToRight);
+      
       case '/manageProducts':
         return PageTransition(
             child: ManageProducts(), type: PageTransitionType.leftToRight);
@@ -171,13 +180,19 @@ class MyApp extends StatelessWidget {
       case '/DEDashboard':
         return PageTransition(
             child: DEDashboard(), type: PageTransitionType.leftToRight);
+      case '/setDELocation':
+        return PageTransition(
+            child: SetDELocation(
+              initialPosition: settings.arguments as GeoPoint,
+            ),
+            type: PageTransitionType.leftToRight);
       case '/DeToShopDirections':
         return PageTransition(
             child: DeToShopDirections(
               deliveryDetails: settings.arguments as DocumentSnapshot,
             ),
             type: PageTransitionType.leftToRight);
-case '/ShopToUserDirections':
+      case '/ShopToUserDirections':
         return PageTransition(
             child: ShopToUserDirection(
               deliveryDetails: settings.arguments as DocumentSnapshot,

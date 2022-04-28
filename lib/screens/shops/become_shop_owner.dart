@@ -247,8 +247,8 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
         permission == LocationPermission.deniedForever) {
       Fluttertoast.showToast(msg: "QGD needs to know your location");
       LocationPermission permissionAsked = await Geolocator.requestPermission();
-      if (permissionAsked == LocationPermission.always ||
-          permissionAsked == LocationPermission.whileInUse) {
+      if (permissionAsked == LocationPermission.denied ||
+          permissionAsked == LocationPermission.deniedForever) {
         getCurrentLocation();
       }
     } else if (permission == LocationPermission.always ||
@@ -268,7 +268,7 @@ class _BecomeShopOwnerState extends State<BecomeShopOwner> {
     }
   }
 
-  Future<void> getAddressFromLatLong(double latitude, double longitude) async {  
+  Future<void> getAddressFromLatLong(double latitude, double longitude) async {
     List<Placemark> placemarks =
         await placemarkFromCoordinates(latitude, longitude);
 
