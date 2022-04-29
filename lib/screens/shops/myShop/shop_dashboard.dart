@@ -1,4 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 
 class ShopDashboard extends StatefulWidget {
@@ -9,17 +12,56 @@ class ShopDashboard extends StatefulWidget {
 }
 
 class _ShopDashboardState extends State<ShopDashboard> {
+  GeoPoint? savedLocation;
+
+  String userLocation = "Your Location";
+  @override
+  void initState() {
+    getSelectedLocation();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppThemeShared.appBar(
-          leading: GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Icon(Icons.arrow_back_ios, color: Colors.white)),
-          title: "Dashboard",
-          context: context),
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        leading: GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Icon(Icons.arrow_back_ios, color: Colors.white)),
+        centerTitle: true,
+        title: Column(
+          // crossAxisAlignment: CrossAxisAlignment.start
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Icon(
+                    Icons.local_shipping_outlined,
+                    color: Colors.white,
+                  ),
+                  Text(userLocation,
+                      style: TextStyle(
+                        color: Colors.white,
+                      )),
+                  GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, "/changeShopLocation",
+                            arguments: GeoPoint(savedLocation!.latitude,
+                                savedLocation!.longitude));
+                      },
+                      child: Icon(Icons.edit, color: Colors.white)),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -124,5 +166,30 @@ class _ShopDashboardState extends State<ShopDashboard> {
         ),
       ),
     );
+  }
+
+  void getSelectedLocation() async {
+    FirebaseFirestore.instance
+        .collection("Shops")
+        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .get()
+        .then((doc) {
+      if (doc.data()?["location"] != null) {
+        savedLocation = doc.data()?["location"]["geopoint"];
+        getAddressFromLatLong(
+            savedLocation!.latitude, savedLocation!.longitude);
+      }
+    });
+  }
+
+  Future<void> getAddressFromLatLong(double latitude, double longitude) async {
+    List<Placemark> placemarks =
+        await placemarkFromCoordinates(latitude, longitude);
+
+    Placemark place = placemarks[0];
+    setState(() {
+      userLocation = '${place.subLocality}, ${place.locality}';
+    });
+    // print(Address);
   }
 }

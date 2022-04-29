@@ -31,6 +31,7 @@ class UserProductModel {
   final String id;
   final String imageUrl;
   final String name;
+  final String categoryId;
   final String category;
   final String price;
   final String type;
@@ -44,6 +45,7 @@ class UserProductModel {
       this.id,
       this.imageUrl,
       this.name,
+      this.categoryId,
       this.category,
       this.price,
       this.type,

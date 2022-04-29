@@ -8,6 +8,7 @@ import 'package:location/location.dart' as locationPackage;
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/constants.dart';
 
+// ignore: must_be_immutable
 class DeToShopDirections extends StatefulWidget {
   DocumentSnapshot deliveryDetails;
 
@@ -86,7 +87,7 @@ class _DeToShopDirectionsState extends State<DeToShopDirections> {
 
   void setPoylinesInMap() async {
     var result = await polylinePoints.getRouteBetweenCoordinates(
-        Constants.mapApiKey,
+        Constants.onlyMapApiKey,
         PointLatLng(
             currentPosition!.latitude ?? 0.0, currentPosition!.latitude ?? 0.0),
         PointLatLng(
@@ -100,6 +101,7 @@ class _DeToShopDirectionsState extends State<DeToShopDirections> {
 
       setState(() {
         polyLines.add(Polyline(
+            width: 5,
             polylineId: PolylineId('directions'),
             color: AppThemeShared.buttonColor,
             points: polyLineCoordinates));

@@ -13,6 +13,7 @@ import 'package:quickgrocerydelivery/shared/dialogs.dart';
 import 'package:quickgrocerydelivery/shared/utility.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:twilio_flutter/twilio_flutter.dart';
 
 class MyCart extends StatefulWidget {
   const MyCart({Key? key}) : super(key: key);
@@ -32,6 +33,7 @@ class _MyCartState extends State<MyCart> {
 
   GeoPoint? savedLocation;
   late DocumentSnapshot deliveryExecutiveDetails;
+  late TwilioFlutter twilioFlutter;
 
   GlobalKey<FormState> addressFormKey = GlobalKey<FormState>();
   TextEditingController addressP1 = TextEditingController();
@@ -47,6 +49,12 @@ class _MyCartState extends State<MyCart> {
     getMyCartProducts();
     getSelectedLocation();
     getUserInfo();
+
+    twilioFlutter = TwilioFlutter(
+        accountSid: 'AC21d6a65ab200fdecb77fdc1e4e5c7ab2',
+        authToken: 'c34108b006dbf1cf86d7f8b7fd43a222',
+        twilioNumber: '+13866664294');
+    super.initState();
   }
 
   @override
@@ -801,6 +809,11 @@ class _MyCartState extends State<MyCart> {
         "ongoing": true,
       });
 
+      _sendSMS(
+          "Quick Groceries 2.0: Your order from ${value.get("name").toString()} has been placed.",
+          "+91" + userPhoneNumber);
+      _sendSMS("Quick Groceries 2.0: You have received  an order from $userName",
+          "+91" + value.get("phoneNumber").toString());
       myCartProducts.clear();
       Navigator.pop(context);
       Navigator.pop(context);
@@ -808,6 +821,10 @@ class _MyCartState extends State<MyCart> {
     });
 
     Fluttertoast.showToast(msg: "Successful");
+  }
+
+  void _sendSMS(String message, String recipent) async {
+    await twilioFlutter.sendSMS(toNumber: recipent, messageBody: message);
   }
 
   Future<void> getUserInfo() async {
