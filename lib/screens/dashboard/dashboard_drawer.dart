@@ -362,7 +362,8 @@ class _DashboardDrawerState extends State<DashboardDrawer> {
     setState(() {
       name = prefs.getString('name');
       phoneNumber = prefs.getString("phoneNumber");
-      userType = prefs.getString("type");
+      userType = "DeliveryExecutive";
+      // prefs.getString("type");
     });
   }
 

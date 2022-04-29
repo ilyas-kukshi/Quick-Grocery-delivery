@@ -184,11 +184,7 @@ class _DashboardProductByCategoryState
     );
   }
 
-
-
   addProductToCart(UserProductModel userProductModel, int index) {
-
-
     FirebaseFirestore.instance
         .collection("Users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -220,8 +216,6 @@ class _DashboardProductByCategoryState
         .collection("My Cart")
         .get()
         .then((value) {
-
-      
       value.docs.forEach((element) {
         myCartProductIds.add(element.id);
       });
@@ -245,6 +239,7 @@ class _DashboardProductByCategoryState
                 element.id,
                 element.get("imageUrl"),
                 element.get("name"),
+                element.get("categoryId"),
                 element.get("category"),
                 element.get("price"),
                 element.get("type"),
@@ -263,6 +258,4 @@ class _DashboardProductByCategoryState
       Fluttertoast.showToast(msg: e.toString());
     }
   }
-
-
 }

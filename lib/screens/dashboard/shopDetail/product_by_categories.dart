@@ -286,6 +286,7 @@ class _ProductByCategoryState extends State<ProductByCategory> {
                         element.id,
                         element.get("imageUrl"),
                         element.get("name"),
+                            element.get("categoryId"),
                         element.get("category"),
                         element.get("price"),
                         element.get("type"),

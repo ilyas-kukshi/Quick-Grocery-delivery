@@ -109,6 +109,7 @@ class _ShopToUserDirectionState extends State<ShopToUserDirection> {
 
       setState(() {
         polyLines.add(Polyline(
+            width: 5,
             polylineId: PolylineId('directions'),
             color: AppThemeShared.buttonColor,
             points: polyLineCoordinates));
