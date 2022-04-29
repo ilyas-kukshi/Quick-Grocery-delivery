@@ -2,13 +2,11 @@ import 'package:argon_buttons_flutter/argon_buttons_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
-import 'package:http/http.dart';
 import 'package:quickgrocerydelivery/models/productModel.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
@@ -704,7 +702,6 @@ class _MyCartState extends State<MyCart> {
     userAddress = addressP1.text + ', ' + addressP2.text;
     myCartProducts.forEach((product) {
       if (product.available!) {
-
         //adding to shop
         FirebaseFirestore.instance
             .collection("Shops")
@@ -734,7 +731,6 @@ class _MyCartState extends State<MyCart> {
           "deliveryExecutivePhoneNumber":
               deliveryExecutiveDetails.get("phoneNumber"),
         }).then((doc) {
-
           //adding to user
           FirebaseFirestore.instance
               .collection("Users")
@@ -802,7 +798,7 @@ class _MyCartState extends State<MyCart> {
         "shopLocation": value.get("location"),
         "shopPhoneNumber": value.get("phoneNumber"),
         "shopName": value.get("name"),
-        "ongoing" : true,
+        "ongoing": true,
       });
 
       myCartProducts.clear();

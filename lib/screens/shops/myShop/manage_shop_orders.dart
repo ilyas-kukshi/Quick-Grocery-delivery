@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quickgrocerydelivery/shared/AppThemeShared.dart';
 import 'package:quickgrocerydelivery/shared/dialogs.dart';
@@ -33,7 +32,7 @@ class _ManageOrdersState extends State<ManageOrders> {
                   .collection("Shops")
                   .doc(FirebaseAuth.instance.currentUser!.uid)
                   .collection("Orders")
-                  .orderBy("timeStamp", descending: true)   
+                  .orderBy("timeStamp", descending: true)
                   .snapshots(),
               // initialData: initialData,
               builder: (BuildContext context, AsyncSnapshot snapshot) {

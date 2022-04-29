@@ -16,7 +16,6 @@ import 'package:quickgrocerydelivery/screens/delivery_executive/become_delivery_
 import 'package:quickgrocerydelivery/screens/delivery_executive/de_dashboard.dart';
 import 'package:quickgrocerydelivery/screens/delivery_executive/de_to_shop_directions.dart';
 import 'package:quickgrocerydelivery/screens/delivery_executive/shop_to_user_directions.dart';
-import 'package:quickgrocerydelivery/screens/onboarding/guidelines.dart';
 import 'package:quickgrocerydelivery/screens/shops/become_shop_owner.dart';
 import 'package:quickgrocerydelivery/screens/shops/myShop/manage_shop_orders.dart';
 import 'package:quickgrocerydelivery/screens/shops/myShop/manage_shop_products.dart';
@@ -58,7 +57,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       onGenerateRoute: routing,
-      home: Guidelines(),
+      home: DashboardMain(),
     );
   }
 
@@ -177,7 +176,7 @@ class MyApp extends StatelessWidget {
               deliveryDetails: settings.arguments as DocumentSnapshot,
             ),
             type: PageTransitionType.leftToRight);
-case '/ShopToUserDirections':
+      case '/ShopToUserDirections':
         return PageTransition(
             child: ShopToUserDirection(
               deliveryDetails: settings.arguments as DocumentSnapshot,

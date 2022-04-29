@@ -26,7 +26,7 @@ class _BecomeDeliveryExecutiveState extends State<BecomeDeliveryExecutive> {
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController locationController = TextEditingController();
 
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  Future<SharedPreferences> prefs = SharedPreferences.getInstance();
 
   @override
   void initState() {
@@ -294,6 +294,4 @@ class _BecomeDeliveryExecutiveState extends State<BecomeDeliveryExecutive> {
       Navigator.pop(context);
     }
   }
-
-  
 }
